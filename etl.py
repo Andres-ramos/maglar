@@ -42,15 +42,17 @@ def main() -> None:
     #     r = filtered_gdf["geometry"].iloc[i]
     #     geojs_dict[global_id]= query_pitirre(r)
 
-    print("processing data")
+    print("post processing data")
+    #TODO: Merge with pitirre
+    #TODO: Clean gdf or geojson columns por presentation
     geojson = filtered_gdf.to_json()
-
+    
+    print("fetching arcgis state")
     layer_title_name = "layer-geojson-test"
-    layer_file_name = "./store/layer.geojson"
+    layer_file_name = "./geojson_data/layer.geojson"
     webmap_title_name = 'Mapa de Costas 2024 WebMap Test'
     storage_folder = os.getenv("ARCGIS_STORAGE_FOLDER")
-
-    print("fetching arcgis state")
+    
     #TODO: Fix layer update and create logic
     layers = gis.content.search(layer_title_name)
     webmaps = gis.content.search(webmap_title_name)
