@@ -1,16 +1,16 @@
-from arcgis.gis import GIS, ContentManager, Item
+from arcgis.gis import GIS, Item
 from arcgis.mapping import WebMap
 from arcgis.features import FeatureLayer, FeatureSet
 
 from typing import List, Dict, Any
 import json 
 
-
+from pathlib import Path
 #Layer stuff 
 
 #Create stuff
 def write_layer(
-        layer_file_name:str, 
+        local_layer_file_path:str, 
         geojson: str
     ) -> None:
     """
@@ -18,7 +18,7 @@ def write_layer(
     Writes geojson to local file
     """
     try :
-        with open(layer_file_name, 'w') as f:
+        with open(str(local_layer_file_path), 'w') as f:
             f.write(geojson)
     except :
         raise Exception("Failed to write layer file")
@@ -26,7 +26,7 @@ def write_layer(
 def upload_layer(
         gis: GIS, 
         layer_title_name:str, 
-        layer_file_name:str, 
+        local_layer_file_path:Path, 
         storage_folder:str
     ) -> Item:
     """
@@ -40,7 +40,7 @@ def upload_layer(
                 "tags": "parcels",
                 "type": "GeoJson"
             },
-            layer_file_name,
+            str(local_layer_file_path),
             folder = storage_folder
         )
 
@@ -50,7 +50,7 @@ def upload_layer(
         
 def create_layer(
         gis: GIS, 
-        layer_file_name:str, 
+        local_layer_file_path:str, 
         geojson:str, 
         layer_title_name:str, 
         storage_folder:str
@@ -58,11 +58,11 @@ def create_layer(
     """
     Main create function. Uploads layer to arcgis online
     """
-    write_layer(layer_file_name, geojson)
+    write_layer(local_layer_file_path, geojson)
     return upload_layer(
         gis, 
         layer_title_name, 
-        layer_file_name, 
+        local_layer_file_path, 
         storage_folder
         )
 
@@ -90,7 +90,7 @@ def update_layer(layers_item_list: List[Any], geojson: str) -> None:
     try :
         f = FeatureLayer.fromitem(layer_item)
         f.edit_features(adds=updated_features)
-        return 
+        return f
     except Exception:
         raise Exception("Arcgis update error")
 
@@ -130,8 +130,8 @@ def create_map(
     #Creates webmap properties
     webmap_item_properties = create_webmap_properties(webmap_title_name)
     #Add layers to map 
-    wm.add_layer(layers[0])
-    # wm.add_layer(protected_area)
+    for layer in layers:
+        wm.add_layer(layer)
 
     #Saves webmap item 
     try :
