@@ -13,7 +13,6 @@ def download_survey_data(
     downloads survey data into download path
     Returns - download path
     """
-    print("sssssssssssssss",survey_id)
     survey_item = content_manager.get(survey_id)
     survey_obj = survey_manager.get(survey_item.id)
     path = survey_obj.download(export_format="Shapefile", save_folder=download_path)

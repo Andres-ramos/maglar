@@ -163,3 +163,7 @@ cython_debug/
 
 survey_data/
 geojson_data/
+plan_uso_de_terreno/
+plan_uso_terreno_clean_1/
+plan_de_uso/
+reservas_terrestres

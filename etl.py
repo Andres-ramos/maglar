@@ -12,6 +12,8 @@ from etl.extract import extract
 from etl.transform import filter_data
 from etl.map import create_layer, create_map, update_layer
 
+from layer_factory import LayerFactory
+
 load_dotenv()
 
 def main() -> None:
@@ -23,16 +25,18 @@ def main() -> None:
     gis = GIS(username=username, password=password)
     
     print("downloading survey data")
-    survey_id = os.getenv("2023_SURVEY_ID")
+    survey_id = os.getenv("SURVEY_TITLE")
     sm = SurveyManager(gis)
     cm = ContentManager(gis)
-    # report_gdf = extract(survey_id, sm, cm)
-    # report_gdf = gpd.read_file("./survey_data/a6830f69f8748455f817f4cbb753859c6.zip")
+    report_gdf = extract(survey_id, sm, cm)
+    # report_gdf = gpd.read_file("./survey_data/ab9f6ca39ac094138944bc94f6b4572c8.zip")
 
 
     print("preprocessing data")
-    # filtered_report_gdf = filter_data(report_gdf)
-
+    filtered_report_gdf = filter_data(report_gdf)
+    filtered_report_gdf = filtered_report_gdf.to_crs(6566)
+    filtered_report_gdf = filtered_report_gdf.drop(columns=['index_right'])
+    print("filtered_Resport crs", filtered_report_gdf.crs)
     print("querying pitirre")
     #TODO: Query againstsurvey_data survey_datapitirre
     # geojs_dict = {}
@@ -43,69 +47,6 @@ def main() -> None:
 
     print("processing data")
     #TODO: Add code from notebook that creates the dataframes
-    # report_geojson = filtered_report_gdf.iloc[0:10].to_json()
-    report_geojson = json.dumps({
-        "type": "FeatureCollection",
-        "features": [
-            {
-            "type": "Feature",
-            "properties": {},
-            "geometry": {
-                "coordinates": [
-                -67.26601508255995,
-                18.35533611409808
-                ],
-                "type": "Point"
-            }
-            }
-        ]
-    })
-    # overlap_reserve_geojson = filtered_report_gdf.iloc[100:110].to_json()
-    overlap_reserve_geojson = json.dumps({
-        "type": "FeatureCollection",
-        "features": [
-            {
-            "type": "Feature",
-            "properties": {},
-            "geometry": {
-                "coordinates": [
-                -66.55189752369114,
-                17.99030563016582
-                ],
-                "type": "Point"
-            }
-            }
-        ]
-    })
-    # non_overlap_reserve_geojson =  filtered_report_gdf.iloc[60:70].to_json()
-    non_overlap_reserve_geojson = json.dumps({
-        "type": "FeatureCollection",
-        "features": [
-            {
-            "type": "Feature",
-            "properties": {},
-            "geometry": {
-                "coordinates": [
-                -65.4133124334345,
-                18.133905335347478
-                ],
-                "type": "Point"
-            }
-            },
-            {
-            "type": "Feature",
-            "properties": {},
-            "geometry": {
-                "coordinates": [
-                -65.51124017122592,
-                18.1228120765213
-                ],
-                "type": "Point"
-            }
-            }
-        ]
-    })
-
     report_layer_title_name = "report_layer"
     overlap_reserve_title_name = "overlap_reservation_layer"
     non_overlap_reserve_title_name = "non_overlap_reservation_layer"
@@ -114,6 +55,13 @@ def main() -> None:
     report_layer_file_name = "./geojson_data/report_layer.geojson"
     overlap_reserve_file_name = "./geojson_data/overlap_layer.geojson"
     non_overlap_reserve_file_name = "./geojson_data/non_overlap_layer.geojson"
+
+    factory = LayerFactory()
+
+    report_geojson = factory.generate_layer("report", filtered_report_gdf)
+    overlap_reserve_geojson = factory.generate_layer("overlap", filtered_report_gdf)
+    non_overlap_reserve_geojson =  factory.generate_layer("non_overlap", filtered_report_gdf)
+
  
     layer_metadata_list = [
         {
@@ -141,7 +89,7 @@ def main() -> None:
         layers = gis.content.search(layer["title"])
         #If no layers with title name have been created
         if len(layers) == 0:
-            print("creating layer")
+            print("creating layer", layer["title"])
             layer_item = create_layer(
                 gis,
                 layer["file_name"],

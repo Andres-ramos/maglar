@@ -133,6 +133,18 @@ def create_map(
     for layer in layers:
         wm.add_layer(layer)
 
+    layer = wm.layers[1]
+    layer["layerDefinition"]["drawingInfo"]["renderer"]["symbol"]["color"] = [255, 0, 0, 100]
+    wm.update_layer(dict(layer))
+
+
+    layer_2 = wm.layers[2]
+    # print(layer_2)
+    layer_2["layerDefinition"]["drawingInfo"]["renderer"]["symbol"]["color"] = [0, 255, 255, 100]
+    print(layer_2)
+    wm.update_layer(dict(layer_2))
+
+
     #Saves webmap item 
     try :
         new_wm_item = wm.save(
