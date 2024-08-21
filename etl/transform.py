@@ -1,4 +1,4 @@
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, shape
 import geopandas as gpd 
 
 PR_AOI = {
@@ -42,6 +42,6 @@ def filter_data(gdf):
     #spatial filter
     aoi_coords = PR_AOI["features"][0]["geometry"]["coordinates"][0]
     polygon = Polygon(aoi_coords)
-    aoi_gdf = gpd.GeoDataFrame(index=[0], crs='epsg:4326', geometry=[polygon])
+    aoi_gdf = gpd.GeoDataFrame(index=[0], crs=4326, geometry=[polygon]).to_crs(6566)
     filtered_gdf = gpd.sjoin(gdf, aoi_gdf, op='within')
     return filtered_gdf

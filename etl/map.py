@@ -64,7 +64,7 @@ def create_layer(
         layer_title_name, 
         local_layer_file_path, 
         storage_folder
-        )
+    )
 
 
 
@@ -79,20 +79,23 @@ def get_layer(layer_list: List[Item]) -> Item:
             return layer
 
 
-def update_layer(layers_item_list: List[Any], geojson: str) -> None:
+#TODO: Geojson should only be new features
+def update_layer(layer_item, geojson: str) -> None:
     """
     Main Function
     Updates a layer already in arcgis online
     """
-    layer_item = get_layer(layers_item_list)
-    geojson_dict = json.loads(geojson)
-    updated_features = FeatureSet.from_geojson(geojson_dict)
-    try :
-        f = FeatureLayer.fromitem(layer_item)
-        f.edit_features(adds=updated_features)
-        return f
-    except Exception:
-        raise Exception("Arcgis update error")
+    # layer_item = get_layer(layers_item_list)
+    f = FeatureLayer.fromitem(layer_item)
+    f.append(upsert=True)
+    # geojson_dict = json.loads(geojson)
+    # updated_features = FeatureSet.from_geojson(geojson_dict)
+    # try :
+    #     f = FeatureLayer.fromitem(layer_item)
+    #     f.edit_features(adds=updated_features)
+    #     return f
+    # except Exception:
+    #     raise Exception("Arcgis update error")
 
 
 ### Webmap stuff
@@ -116,6 +119,33 @@ def create_webmap_properties(webmap_title_name:str) -> Dict[str, Any]:
         }
     }
 
+
+def create_style(color):
+    outline_color = [0, 0, 0, 255]
+    outline_width = 0.75
+    color_map = {
+        "red": [255, 0, 0, 100],
+        "green": [0,255,0,100],
+        "blue": [0,0,255,100]
+    }
+    rgba_color = color_map[color]
+
+    return {"renderer": {
+        'type': 'simple', 
+        'symbol': {
+            'type': 'esriSFS', 
+            'style': 'esriSFSSolid', 
+            'color': rgba_color, 
+            'outline': {
+                'type': 'esriSLS', 
+                'style': 'esriSLSSolid', 
+                'color': outline_color, 
+                'width': outline_width
+                }
+            }
+        }
+    }
+
 def create_map(
         webmap_title_name:str, 
         layers:List[Any], 
@@ -130,20 +160,20 @@ def create_map(
     #Creates webmap properties
     webmap_item_properties = create_webmap_properties(webmap_title_name)
     #Add layers to map 
-    for layer in layers:
-        wm.add_layer(layer)
-
-    layer = wm.layers[1]
-    layer["layerDefinition"]["drawingInfo"]["renderer"]["symbol"]["color"] = [255, 0, 0, 100]
-    wm.update_layer(dict(layer))
-
-
-    layer_2 = wm.layers[2]
-    # print(layer_2)
-    layer_2["layerDefinition"]["drawingInfo"]["renderer"]["symbol"]["color"] = [0, 255, 255, 100]
-    print(layer_2)
-    wm.update_layer(dict(layer_2))
-
+    #TODO: Make this generalizable to more layers 
+    # for layer in layers:
+    #     if layer.title == "non_overlap_reservation_layer":
+    #         wm.add_layer(
+    #             layer, 
+    #             create_style("green")
+    #         )
+    #     elif layer.title == "overlap_reservation_layer":
+    #         wm.add_layer(
+    #             layer, 
+    #             create_style("red")
+    #         )
+    #     else :
+    #         wm.add_layer(layer)
 
     #Saves webmap item 
     try :
@@ -151,6 +181,6 @@ def create_map(
             webmap_item_properties, 
             folder=storage_folder
         )
-        return new_wm_item
+        return WebMap(new_wm_item)
     except Exception:
         raise Exception("Arcgis web map creation error")
