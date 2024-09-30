@@ -2,7 +2,7 @@ import geopandas as gpd
 
 class LayerFactory:
     def __init__(self):
-        self.RESERVAS_TERRESTRES_FOLDER = "./reservas_marinas"
+        self.RESERVAS_TERRESTRES_FOLDER = "./reservas"
 
     def generate_layer(self, layer_name, gdf):
         if layer_name == "report":
@@ -38,15 +38,16 @@ class LayerFactory:
             circle_gdf["geometry"] = circle_gdf["geometry"].to_crs(epsg=6566)
             reserve_gdf = gpd.read_file(self.RESERVAS_TERRESTRES_FOLDER)
             intersecting_gdf = gpd.sjoin(reserve_gdf, circle_gdf, how='inner', op='intersects')
+            print(intersecting_gdf.columns)
             print(intersecting_gdf)
-            intersecting_gdf = intersecting_gdf.drop(columns=[ 'loc_desig','terr_mar', 'gis_source', 'notes', 
-            'index_right'])
-            intersecting_gdf = intersecting_gdf.rename(columns={
-                "names": "Nombre",
-                "mgmt": "Manejador",
-                "ownership": "Dueño",
-                "year_estab": "Año establecida"
-            })
+            # intersecting_gdf = intersecting_gdf.drop(columns=[ 'loc_desig','terr_mar', 'gis_source', 'notes', 
+            # 'index_right'])
+            # intersecting_gdf = intersecting_gdf.rename(columns={
+            #     "names": "Nombre",
+            #     "mgmt": "Manejador",
+            #     "ownership": "Dueño",
+            #     "year_estab": "Año establecida"
+            # })
             return intersecting_gdf.to_json()
 
         elif layer_name == "non_overlap":
@@ -59,13 +60,13 @@ class LayerFactory:
             intersecting_gdf = gpd.sjoin(reserve_gdf, circle_gdf, how='inner', op='intersects')
             non_intersecting_gdf = reserve_gdf[~reserve_gdf.index.isin(intersecting_gdf.index)]
             print(non_intersecting_gdf.columns)
-            non_intersecting_gdf = non_intersecting_gdf.drop(columns=[ 'loc_desig','terr_mar', 'gis_source', 'notes'])
-            non_intersecting_gdf = non_intersecting_gdf.rename(columns={
-                "names": "Nombre",
-                "mgmt": "Manejador",
-                "ownership": "Dueño",
-                "year_estab": "Año establecida"
-            })
+            # non_intersecting_gdf = non_intersecting_gdf.drop(columns=[ 'loc_desig','terr_mar', 'gis_source', 'notes'])
+            # non_intersecting_gdf = non_intersecting_gdf.rename(columns={
+            #     "names": "Nombre",
+            #     "mgmt": "Manejador",
+            #     "ownership": "Dueño",
+            #     "year_estab": "Año establecida"
+            # })
             return non_intersecting_gdf.to_json()
     
 
