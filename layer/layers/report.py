@@ -1,5 +1,5 @@
 import geopandas as gpd
-from .layer import Layer
+from ..layer import Layer
 
 class ReportLayer(Layer):
     def __init__(self, gis, layer_title, arcgis_storage_folder, color):

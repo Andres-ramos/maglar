@@ -13,13 +13,13 @@ from arcgis.features import FeatureLayerCollection
 
 from etl.extract import extract  
 from etl.transform import filter_data
-from etl.map import create_layer, create_map, update_layer, create_style, create_webmap_properties
 
 from typing import List, Any
-from layer_factory import LayerFactory
+from layer import LayerFactory
 
-from layer_factory.layer import Layer
 from arcgis2geojson import arcgis2geojson
+
+from utils import find_webmap
 
 
 load_dotenv()
@@ -59,20 +59,12 @@ def main() -> None:
 
     #Generate layers from reports 
     factory = LayerFactory(gis)
-    
-    report_layer = Layer(gis, "report_layer", storage_folder, None)
-    overlap_layer = Layer(gis, "over_reservation_layer", storage_folder, "red")
-    non_overlap_layer = Layer(gis, "non_overlap_reservation_layer", storage_folder, "green")
 
-
-    report_geojson = factory.generate_layer("report", new_reports_gdf)
-    overlap_reserve_geojson = factory.generate_layer("overlap", new_reports_gdf)
-    non_overlap_reserve_geojson =  factory.generate_layer("non_overlap", new_reports_gdf)
-
+    #TODO: Constants file
     layer_list = [
-        {"layer":report_layer, "geojson": report_geojson},
-        {"layer":overlap_layer, "geojson": overlap_reserve_geojson},
-        {"layer":non_overlap_layer, "geojson": non_overlap_reserve_geojson}
+        factory.generate_layer("report"),
+        factory.generate_layer("overlap"),
+        factory.generate_layer("non_overlap")
     ]
 
     #Creates webmap 
@@ -82,7 +74,6 @@ def main() -> None:
     #Finds the correct webmap item and creates webmap object
     wm = find_webmap(p_webmaps, webmap_title_name)
     if wm == None:
-        print("creating Webmap")
         wm = create_map(
             webmap_title_name,
             None,
@@ -92,47 +83,16 @@ def main() -> None:
     #Creates or updates layers 
     for layer in layer_list:
         #Creates or updates layer
-        output = layer["layer"].update_or_create(layer["geojson"])
+        layer_geojson = layer.generate_layer(new_reports_gdf)
+        output = layer.update_or_create(layer_geojson)
         #If layer is created, add to webmap
         if output == "create":
-            wm.add_layer(layer["layer"].layer_item, layer["layer"].layer_style)
+            wm.add_layer(layer.layer_item, layer.layer_style)
             wm.update(
                 item_properties=create_webmap_properties(webmap_title_name)
             )
 
     print(f"{time.time()-start} segs")
 
-
-def find_webmap(p_webmaps, webmap_title_name):
-    if len(p_webmaps) == 0:
-        wm = None
-    #Find webmap
-    elif len(p_webmaps) == 1 :
-        wm = WebMap(p_webmaps[0])
-    else :
-        wm = None
-        for p_webmap in p_webmaps:
-            if p_webmap.title == webmap_title_name and p_webmap.type == "Web Map":
-                wm = WebMap(p_webmap)
-    return wm
-
-def get_new_reports(report_layer, filtered_report_gdf):
-    if report_layer.layer_item != None:
-        #Find layer
-        l = FeatureLayerCollection.fromitem(report_layer.layer_item).layers[0]
-        #convert to geodataframe
-        old_reports = l.query().sdf
-
-        if len(filtered_report_gdf) > len(old_reports):
-            new_reports_gdf = filtered_report_gdf.iloc[len(old_reports): len(filtered_report_gdf)]
-        else :
-            new_reports_gdf = gpd.GeoDataFrame({"geometry": []})
-
-        return new_reports_gdf
-
-    #If no layers have been created yet 
-    # first run of the server
-    new_reports_gdf = filtered_report_gdf
-    return new_reports_gdf 
 
 main()

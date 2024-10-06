@@ -19,7 +19,7 @@ class Layer:
         self.arcgis_storage_folder = arcgis_storage_folder
         self.layer_style = self._create_style(color) if color else None
     
-    def update_or_create(self, geojson):
+    def update_or_create(self, geojson) -> str:
         # If no layer with title name have been created, create layer and update map
         if self.layer_item == None:
             #If geojson has no features don't upload layer
@@ -45,7 +45,6 @@ class Layer:
                 fe_collection.manager.overwrite(self.file_path)
                 return "update"
 
-
         return 
     
     def _create_layer(
@@ -59,7 +58,6 @@ class Layer:
         """
         Main create function. Uploads layer to arcgis online
         """
-        print("_create_layer")
         self._write_layer(local_layer_file_path, geojson)
         try :
             return self._upload_layer(
@@ -109,10 +107,8 @@ class Layer:
                 data=str(local_layer_file_path),
                 folder = storage_folder
             )
-            print("item to publish", item)
             return item.publish()
         except Exception as e:
-            print(e)
             raise Exception("Arcgis layer upload exception")
 
     def _create_style(self,color):
@@ -140,7 +136,8 @@ class Layer:
                 }
             }
         }
-        
+    
+    #TODO: Constants file
     def _generate_file_path(self):
         return f"./geojson_data/{self.layer_title}.geojson"
     
