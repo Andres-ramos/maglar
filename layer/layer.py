@@ -9,6 +9,7 @@ from copy import deepcopy
 import geopandas as gpd 
 from arcgis.features import FeatureLayerCollection
 
+from constants import LOCAL_STORAGE_FOLDER
 
 class Layer:
     def __init__(self, gis, layer_title, arcgis_storage_folder, color):
@@ -139,15 +140,16 @@ class Layer:
     
     #TODO: Constants file
     def _generate_file_path(self):
-        return f"./geojson_data/{self.layer_title}.geojson"
+        return f"./{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
     
     def _get_layer_item(self, layer_title):
-        p_layers = self.gis.content.search(layer_title)
+        p_layers = self.gis.content.search(query=f"title:{layer_title}")
+        print("possible laayers", p_layers)
         return self._find_layer(possible_layers_list=p_layers)
     
     def _find_layer(self, possible_layers_list: List[Any]):
     
         for p_layer_item in possible_layers_list:
-            if p_layer_item.title == p_layer_item["title"] and p_layer_item.type == "Feature Service":
+            if p_layer_item.title == self.layer_title and p_layer_item.type == "Feature Service":
                 return p_layer_item
         return None

@@ -21,6 +21,15 @@ from arcgis2geojson import arcgis2geojson
 
 from utils import find_webmap
 
+from etl.map import create_layer, create_map, update_layer, create_style, create_webmap_properties
+
+from constants import (
+    ARCGIS_STORAGE_FOLDER,
+    WEBMAP_TITLE,
+    REPORT_LAYER_NAME,
+    OVERLAP_LAYER_NAME,
+    NONOVERLAP_LAYER_NAME
+)
 
 load_dotenv()
 
@@ -28,7 +37,7 @@ load_dotenv()
 
 def main() -> None:
     start = time.time()
-    storage_folder = os.getenv("ARCGIS_STORAGE_FOLDER")
+    # storage_folder = os.getenv("ARCGIS_STORAGE_FOLDER")
     username = os.getenv("ARCGIS_USERNAME")
     password = os.getenv("ARCGIS_PASSWORD")
 
@@ -60,24 +69,20 @@ def main() -> None:
     #Generate layers from reports 
     factory = LayerFactory(gis)
 
-    #TODO: Constants file
     layer_list = [
-        factory.generate_layer("report"),
-        factory.generate_layer("overlap"),
-        factory.generate_layer("non_overlap")
+        factory.generate_layer(REPORT_LAYER_NAME),
+        factory.generate_layer(OVERLAP_LAYER_NAME),
+        factory.generate_layer(NONOVERLAP_LAYER_NAME)
     ]
 
-    #Creates webmap 
-    webmap_title_name = os.getenv("WEBMAP_TITLE")
-    p_webmaps = gis.content.search(query=f"title:{webmap_title_name}", item_type="Web Map")
+    p_webmaps = gis.content.search(query=f"title:{WEBMAP_TITLE}", item_type="Web Map")
 
     #Finds the correct webmap item and creates webmap object
-    wm = find_webmap(p_webmaps, webmap_title_name)
+    wm = find_webmap(p_webmaps, WEBMAP_TITLE)
     if wm == None:
         wm = create_map(
-            webmap_title_name,
-            None,
-            storage_folder
+            WEBMAP_TITLE,
+            ARCGIS_STORAGE_FOLDER
         )   
 
     #Creates or updates layers 
@@ -89,7 +94,7 @@ def main() -> None:
         if output == "create":
             wm.add_layer(layer.layer_item, layer.layer_style)
             wm.update(
-                item_properties=create_webmap_properties(webmap_title_name)
+                item_properties=create_webmap_properties(WEBMAP_TITLE)
             )
 
     print(f"{time.time()-start} segs")

@@ -1,0 +1,9 @@
+LOCAL_STORAGE_FOLDER="geojson_data"
+ARCGIS_STORAGE_FOLDER="Mapa de Costas-2024"
+WEBMAP_TITLE="Mapa de Costas 2024"
+
+REPORT_LAYER_NAME = "report"
+OVERLAP_LAYER_NAME = "overlap"
+NONOVERLAP_LAYER_NAME = "non_overlap"
+
+CRS=6566
