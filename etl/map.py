@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 #Layer stuff 
 
+#TODO: Figure out what is being used and what isn't
 #Create stuff
 def write_layer(
         local_layer_file_path:str, 

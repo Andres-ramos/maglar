@@ -69,6 +69,7 @@ def main() -> None:
     #Generate layers from reports 
     factory = LayerFactory(gis)
 
+    #TODO: ADD fast tract layer and cluster layer
     layer_list = [
         factory.generate_layer(REPORT_LAYER_NAME),
         factory.generate_layer(OVERLAP_LAYER_NAME),

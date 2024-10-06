@@ -3,6 +3,8 @@ from arcgis.apps.survey123 import SurveyManager
 import geopandas as gpd 
 import tempfile
 
+#TODO: Document file
+
 def download_survey_data(
         survey_id:str,
         content_manager:ContentManager, 
@@ -21,11 +23,8 @@ def download_survey_data(
 
 
 def extract(survey_id, survey_manager, content_manager):
-
-    #TODO: Hacer try-catch
-    # for survey in survey_manager.surveys:
-    #     if survey.properties["title"] == survey_title:
-    #         survey_id = survey.properties["id"]
-    
-    path = download_survey_data(survey_id, content_manager, survey_manager)
-    return gpd.read_file(path)
+    try :
+        path = download_survey_data(survey_id, content_manager, survey_manager)
+        return gpd.read_file(path)
+    except Exception:
+        raise Exception("Failed to download survey")

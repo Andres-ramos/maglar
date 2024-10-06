@@ -11,6 +11,8 @@ from arcgis.features import FeatureLayerCollection
 
 from constants import LOCAL_STORAGE_FOLDER
 
+#TODO: Document file
+#TODO: Programatically create description for layer
 class Layer:
     def __init__(self, gis, layer_title, arcgis_storage_folder, color):
         self.gis = gis
@@ -138,13 +140,11 @@ class Layer:
             }
         }
     
-    #TODO: Constants file
     def _generate_file_path(self):
         return f"./{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
     
     def _get_layer_item(self, layer_title):
         p_layers = self.gis.content.search(query=f"title:{layer_title}")
-        print("possible laayers", p_layers)
         return self._find_layer(possible_layers_list=p_layers)
     
     def _find_layer(self, possible_layers_list: List[Any]):

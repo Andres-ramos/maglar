@@ -1,6 +1,7 @@
 from shapely.geometry import Polygon, shape
 import geopandas as gpd 
 
+#TODO: Document file
 PR_AOI = {
   "type": "FeatureCollection",
   "features": [
