@@ -18,26 +18,10 @@ class Layer:
         self.layer_item = self._get_layer_item(layer_title)
         self.arcgis_storage_folder = arcgis_storage_folder
         self.layer_style = self._create_style(color) if color else None
-
-    def _generate_file_path(self):
-        return f"./geojson_data/{self.layer_title}.geojson"
-    
-    def _get_layer_item(self, layer_title):
-        p_layers = self.gis.content.search(layer_title)
-        return self._find_layer(possible_layers_list=p_layers)
-    
-    def _find_layer(self, possible_layers_list: List[Any]):
-    
-        for p_layer_item in possible_layers_list:
-            if p_layer_item.title == p_layer_item["title"] and p_layer_item.type == "Feature Service":
-                return p_layer_item
-        return None
     
     def update_or_create(self, geojson):
-        print("update_or_create", self.layer_title)
         # If no layer with title name have been created, create layer and update map
         if self.layer_item == None:
-            print("creating layer", self.layer_title)
             #If geojson has no features don't upload layer
             if len(json.loads(geojson)["features"]) > 0:
                 layer_item = self._create_layer(
@@ -53,37 +37,15 @@ class Layer:
 
         #If layer and webmaps have already been created, update layer map updates automatically
         else :
-            #Supone que no se remueven features del anterior
-            # Se pasan solo las que se anadieron
-            # 
             if len(json.loads(geojson)["features"]) > 0:
-                if self.layer_title == "report_layer":
+                #Overwrites current geojson file
+                fe_collection = FeatureLayerCollection.fromitem(self.layer_item)
+                with open(self.file_path, 'w') as f:
+                    f.write(geojson)
+                fe_collection.manager.overwrite(self.file_path)
+                return "update"
 
-                    # layer_item = self._update_layer(geojson)
-                    fe_collection = FeatureLayerCollection.fromitem(self.layer_item)
-                    with open(self.file_path, 'w') as f:
-                        f.write(geojson)
 
-                    fe_collection.manager.overwrite(self.file_path)
-                    return "update"
-
-                elif self.layer_title == "over_reservation_layer":
-
-                    fe_collection = FeatureLayerCollection.fromitem(self.layer_item)
-                    with open(self.file_path, 'w') as f:
-                        f.write(geojson)
-
-                    fe_collection.manager.overwrite(self.file_path)
-                    return "update"
-                elif self.layer_title == "non_overlap_reservation_layer":
-                  
-                    fe_collection = FeatureLayerCollection.fromitem(self.layer_item)
-                    with open(self.file_path, 'w') as f:
-                        f.write(geojson)
-
-                    fe_collection.manager.overwrite(self.file_path)
-
-                    return "update"
         return 
     
     def _create_layer(
@@ -152,41 +114,6 @@ class Layer:
         except Exception as e:
             print(e)
             raise Exception("Arcgis layer upload exception")
-    
-    #TODO: Geojson should only be new features
-    def _update_layer(self, geojson: str) -> None:
-        """
-        Main Function
-        Updates a layer already in arcgis online
-        """
-        geojson_dict = json.loads(geojson)
-        updated_feature_list = []
-        updated_features = FeatureSet.from_geojson(geojson_dict)
-        template = updated_features.features[0]
-        gdf = updated_features.sdf
-        for _, row in gdf.iterrows():
-            new_feature = deepcopy(template)
-            print(new_feature)
-            input_geometry = {'y':float(row['SHAPE']['y']),
-                       'x':float(row['SHAPE']['x'])}
-            output_geometry = geometry.project(geometries = [input_geometry],
-                                    in_sr = 6566, 
-                                    out_sr = 6566)
-            new_feature.geometry = output_geometry[0]
-            new_feature.attributes['¿Qué ves? Tipo de observación'] = row['¿Qué ves? Tipo de observación']
-            new_feature.attributes["globalid"] = row["globalid"]
-            new_feature.attributes["Pueblo"] = row["Pueblo"]
-            new_feature.attributes["¿Hay otras observaciones aledañas al lugar?"] = row["¿Hay otras observaciones aledañas al lugar?"]
-            new_feature.attributes["¿Qué otras observaciones viste?"] = row["¿Qué otras observaciones viste?"]
-            print(new_feature.attributes)
-            updated_feature_list.append(new_feature)
-        print("hasya aqui")
-        try :
-            f = FeatureLayer.fromitem(self.layer_item)
-            f.edit_features(adds=updated_feature_list)
-        except Exception as e:
-            print(e)
-            raise Exception("Arcgis update error")
 
     def _create_style(self,color):
         outline_color = [0, 0, 0, 255]
@@ -213,3 +140,17 @@ class Layer:
                 }
             }
         }
+        
+    def _generate_file_path(self):
+        return f"./geojson_data/{self.layer_title}.geojson"
+    
+    def _get_layer_item(self, layer_title):
+        p_layers = self.gis.content.search(layer_title)
+        return self._find_layer(possible_layers_list=p_layers)
+    
+    def _find_layer(self, possible_layers_list: List[Any]):
+    
+        for p_layer_item in possible_layers_list:
+            if p_layer_item.title == p_layer_item["title"] and p_layer_item.type == "Feature Service":
+                return p_layer_item
+        return None

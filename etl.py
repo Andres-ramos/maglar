@@ -24,9 +24,10 @@ from arcgis2geojson import arcgis2geojson
 
 load_dotenv()
 
+#TODO: Add logger
+
 def main() -> None:
     start = time.time()
-    factory = LayerFactory()
     storage_folder = os.getenv("ARCGIS_STORAGE_FOLDER")
     username = os.getenv("ARCGIS_USERNAME")
     password = os.getenv("ARCGIS_PASSWORD")
@@ -34,29 +35,19 @@ def main() -> None:
     print("logging into arcgis")
     gis = GIS(username=username, password=password)
 
-    report_layer = Layer(gis, "report_layer", storage_folder, None)
-    overlap_layer = Layer(gis, "over_reservation_layer", storage_folder, "red")
-    non_overlap_layer = Layer(gis, "non_overlap_reservation_layer", storage_folder, "green")
-
     print("downloading survey data")
     survey_id = os.getenv("SURVEY_TITLE")
     sm = SurveyManager(gis)
     cm = ContentManager(gis)
     report_gdf = extract(survey_id, sm, cm)
-    # print("Reports ", len(report_gdf))
-    # report_gdf = gpd.read_file("./survey_data/a180c66d204f34a1aa15f9fd3861c9f03.zip")
 
-    # print("preprocessing data")
+    print("preprocessing data")
     report_gdf = report_gdf.to_crs(6566)
+    #Filters data spatially
+    #TODO: Consider removing columns at this point
     filtered_report_gdf = filter_data(report_gdf)
     filtered_report_gdf = filtered_report_gdf.drop(columns=['index_right'])
     new_reports_gdf = filtered_report_gdf
-    #Finds newest reports
-    # new_reports_gdf = get_new_reports(report_layer, filtered_report_gdf)
-    # #If no reports, return
-    # if len(new_reports_gdf) == 0:
-    #     return 
-    
 
     # #TODO: Query againstsurvey_data survey_datapitirre
     # # geojs_dict = {}
@@ -65,9 +56,16 @@ def main() -> None:
     # #     r = filtered_gdf["geometry"].iloc[i]
     # #     geojs_dict[global_id]= query_pitirre(r)
 
-    # if len(new_reports_gdf) > 0:
 
-    #Generate layer from new_reports 
+    #Generate layers from reports 
+    #Esto deberia recibir el gis 
+    factory = LayerFactory(gis)
+    
+    report_layer = Layer(gis, "report_layer", storage_folder, None)
+    overlap_layer = Layer(gis, "over_reservation_layer", storage_folder, "red")
+    non_overlap_layer = Layer(gis, "non_overlap_reservation_layer", storage_folder, "green")
+
+
     report_geojson = factory.generate_layer("report", new_reports_gdf)
     overlap_reserve_geojson = factory.generate_layer("overlap", new_reports_gdf)
     non_overlap_reserve_geojson =  factory.generate_layer("non_overlap", new_reports_gdf)
@@ -79,7 +77,7 @@ def main() -> None:
     ]
 
     #Creates webmap 
-    webmap_title_name = 'Mapa de Costas 2024 WebMap Test'
+    webmap_title_name = os.getenv("WEBMAP_TITLE")
     p_webmaps = gis.content.search(query=f"title:{webmap_title_name}", item_type="Web Map")
 
     #Finds the correct webmap item and creates webmap object
@@ -94,7 +92,9 @@ def main() -> None:
 
     #Creates or updates layers 
     for layer in layer_list:
+        #Creates or updates layer
         output = layer["layer"].update_or_create(layer["geojson"])
+        #If layer is created, add to webmap
         if output == "create":
             wm.add_layer(layer["layer"].layer_item, layer["layer"].layer_style)
             wm.update(
