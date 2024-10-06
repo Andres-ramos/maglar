@@ -1,7 +1,7 @@
 import geopandas as gpd
-from .report import generate_report_layer 
-from .overlap import generate_overlap_layer
-from .non_overlap import generate_non_overlap_layer
+from .report import ReportLayer
+from .overlap import OverlapLayer
+from .non_overlap import NonOverlapLayer
 
 class LayerFactory:
     def __init__(self, gis):
@@ -10,13 +10,34 @@ class LayerFactory:
     def generate_layer(self, layer_name, gdf):
 
         if layer_name == "report":
-            return generate_report_layer(gdf)
+            layer_title = "report_layer"
+            report_layer = ReportLayer(
+                self.gis, 
+                layer_title,
+                "Mapa de Costas-2024",
+                None
+            )
+            return report_layer.generate_layer(gdf)
         
         elif layer_name == "overlap":
-            return generate_overlap_layer(gdf)
+            layer_title = "over_reservation_layer"
+            overlap_layer = OverlapLayer(
+                self.gis, 
+                layer_title,
+                "Mapa de Costas-2024",
+                None
+            )
+            return overlap_layer.generate_layer(gdf)
 
         elif layer_name == "non_overlap":
-            return generate_non_overlap_layer(gdf)
+            layer_title = "over_reservation_layer"
+            non_overlap_layer = NonOverlapLayer(
+                self.gis, 
+                layer_title,
+                "Mapa de Costas-2024",
+                None
+            )
+            return non_overlap_layer.generate_layer(gdf)
 
         else :
             raise Exception(f"{layer_name} not yet implemented!")

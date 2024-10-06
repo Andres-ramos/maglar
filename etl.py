@@ -18,7 +18,7 @@ from etl.map import create_layer, create_map, update_layer, create_style, create
 from typing import List, Any
 from layer_factory import LayerFactory
 
-from layer import Layer
+from layer_factory.layer import Layer
 from arcgis2geojson import arcgis2geojson
 
 
@@ -58,7 +58,6 @@ def main() -> None:
 
 
     #Generate layers from reports 
-    #Esto deberia recibir el gis 
     factory = LayerFactory(gis)
     
     report_layer = Layer(gis, "report_layer", storage_folder, None)
