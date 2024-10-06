@@ -34,7 +34,7 @@ class Layer:
         return None
     
     def update_or_create(self, geojson):
-
+        print("update_or_create", self.layer_title)
         # If no layer with title name have been created, create layer and update map
         if self.layer_item == None:
             print("creating layer", self.layer_title)
@@ -97,13 +97,17 @@ class Layer:
         """
         Main create function. Uploads layer to arcgis online
         """
+        print("_create_layer")
         self._write_layer(local_layer_file_path, geojson)
-        return self._upload_layer(
-            gis, 
-            layer_title_name, 
-            local_layer_file_path, 
-            storage_folder
-        )
+        try :
+            return self._upload_layer(
+                gis, 
+                layer_title_name, 
+                local_layer_file_path, 
+                storage_folder
+            )
+        except Exception:
+            raise("Failed to upload layer")
     
 
     #Create stuff
@@ -143,11 +147,11 @@ class Layer:
                 data=str(local_layer_file_path),
                 folder = storage_folder
             )
-
+            print("item to publish", item)
             return item.publish()
         except Exception as e:
             print(e)
-            # raise Exception("Arcgis layer upload exception")
+            raise Exception("Arcgis layer upload exception")
     
     #TODO: Geojson should only be new features
     def _update_layer(self, geojson: str) -> None:
