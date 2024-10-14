@@ -7,7 +7,7 @@ from arcgis.features import FeatureLayerCollection
 from arcgis.gis import GIS
 from arcgis.gis import Item
 
-from constants import LOCAL_STORAGE_FOLDER
+from ..constants import LOCAL_STORAGE_FOLDER
 
 
 # TODO: Document file
@@ -132,7 +132,7 @@ class Layer:
         }
 
     def _generate_file_path(self) -> str:
-        return f"./{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
+        return f"./static/{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
 
     def _get_layer_item(self, layer_title: str):
         p_layers = self.gis.content.search(query=f"title:{layer_title}")

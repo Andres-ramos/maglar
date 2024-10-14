@@ -6,26 +6,26 @@ from arcgis.gis import GIS
 from arcgis.gis import ContentManager
 from dotenv import load_dotenv
 
-from constants import ARCGIS_STORAGE_FOLDER
-from constants import CLUSTER_LAYER_NAME
-from constants import FAST_TRACK_LAYER_NAME
-from constants import NONOVERLAP_LAYER_NAME
-from constants import OVERLAP_LAYER_NAME
-from constants import REPORT_LAYER_NAME
-from constants import WEBMAP_TITLE
-from etl.extract import extract
-from etl.map import create_map
-from etl.map import create_webmap_properties
-from etl.transform import filter_data
-from layer import LayerFactory
-from utils import find_webmap
+from .constants import ARCGIS_STORAGE_FOLDER
+from .constants import CLUSTER_LAYER_NAME
+from .constants import FAST_TRACK_LAYER_NAME
+from .constants import NONOVERLAP_LAYER_NAME
+from .constants import OVERLAP_LAYER_NAME
+from .constants import REPORT_LAYER_NAME
+from .constants import WEBMAP_TITLE
+from .etl.extract import extract
+from .etl.map import create_map
+from .etl.map import create_webmap_properties
+from .etl.transform import filter_data
+from .layer import LayerFactory
+from .utils import find_webmap
 
 load_dotenv()
 
 # TODO: Add logger
 
 
-def main() -> None:
+def etl_job() -> None:
     start = time.time()
     # storage_folder = os.getenv("ARCGIS_STORAGE_FOLDER")
     username = os.getenv("ARCGIS_USERNAME")
@@ -87,6 +87,3 @@ def main() -> None:
             wm.update(item_properties=create_webmap_properties(WEBMAP_TITLE))
 
     print(f"{time.time()-start} segs")
-
-
-main()
