@@ -28,7 +28,6 @@ class ReportLayer(Layer):
         #     "": "Comentarios generales"
         # }
         # gdf['test_col'] = gdf['_qu_ves_ti'].apply(lambda row: row[0:5])
-
         return gdf.to_json()
 
     def generate_style(self):

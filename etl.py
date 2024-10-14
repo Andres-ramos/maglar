@@ -30,7 +30,7 @@ from constants import (
     OVERLAP_LAYER_NAME,
     NONOVERLAP_LAYER_NAME,
     CLUSTER_LAYER_NAME,
-    # FAST_TRACK_LAYER_NAME
+    FAST_TRACK_LAYER_NAME
 )
 
 load_dotenv()
@@ -77,7 +77,7 @@ def main() -> None:
         factory.generate_layer(NONOVERLAP_LAYER_NAME),
         factory.generate_layer(REPORT_LAYER_NAME),
         factory.generate_layer(CLUSTER_LAYER_NAME),
-        # factory.generate_layer(FAST_TRACK_LAYER_NAME)
+        factory.generate_layer(FAST_TRACK_LAYER_NAME)
     ]
 
     p_webmaps = gis.content.search(query=f"title:{WEBMAP_TITLE}", item_type="Web Map")
@@ -94,6 +94,7 @@ def main() -> None:
     for layer in layer_list:
         #Creates or updates layer
         layer_geojson = layer.generate_layer(new_reports_gdf)
+        # print(layer_geojson)
         output = layer.update_or_create(layer_geojson)
         #If layer is created, add to webmap
         if output == "create":
