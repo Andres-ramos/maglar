@@ -116,14 +116,14 @@ class Layer:
         """
         return f"./static/{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
 
-    def _get_layer_item(self, layer_title: str) -> Union(Item, None):
+    def _get_layer_item(self, layer_title: str) -> Union[Item, None]:
         """
         Looks for layer in arcgis cloud
         """
         p_layers = self.gis.content.search(query=f"title:{layer_title}")
         return self._find_layer(possible_layers_list=p_layers)
 
-    def _find_layer(self, possible_layers_list: List[Any]) -> Union(Item, None):
+    def _find_layer(self, possible_layers_list: List[Any]) -> Union[Item, None]:
         for p_layer_item in possible_layers_list:
             if (
                 p_layer_item.title == self.layer_title
