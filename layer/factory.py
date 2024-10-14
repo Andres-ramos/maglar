@@ -1,19 +1,14 @@
-import geopandas as gpd
-from .layers import ReportLayer
-from .layers import OverlapLayer
-from .layers import NonOverlapLayer
+from constants import CLUSTER_LAYER_NAME
+from constants import FAST_TRACK_LAYER_NAME
+from constants import NONOVERLAP_LAYER_NAME
+from constants import OVERLAP_LAYER_NAME
+from constants import REPORT_LAYER_NAME
+
 from .layers import ClusterLayer
 from .layers import FastTrackLayer
-
-from constants import (
-    ARCGIS_STORAGE_FOLDER,
-    WEBMAP_TITLE,
-    REPORT_LAYER_NAME,
-    OVERLAP_LAYER_NAME,
-    NONOVERLAP_LAYER_NAME,
-    CLUSTER_LAYER_NAME,
-    FAST_TRACK_LAYER_NAME,
-)
+from .layers import NonOverlapLayer
+from .layers import OverlapLayer
+from .layers import ReportLayer
 
 
 class LayerFactory:
@@ -22,9 +17,7 @@ class LayerFactory:
 
     # TODO: Use dictionary instead of if-else soup
     # TODO: Figure out best way to pass
-    # TODO: Add cluster layer
-    # TODO: Add fast track layer
-
+    # TODO: Remove color from class creation call
     def generate_layer(self, layer_name):
         if layer_name == REPORT_LAYER_NAME:
             layer_title = self._generate_title(REPORT_LAYER_NAME)
@@ -50,9 +43,10 @@ class LayerFactory:
         else:
             raise Exception(f"{layer_name} not yet implemented!")
 
-    # TODO: Add fast track layer
-    # TODO: Add cluster layer
     def _generate_title(self, layer_name):
+        """
+        Maps layer title to presentation Name
+        """
         TITLE_MAP = {
             REPORT_LAYER_NAME: "Observaciones",
             OVERLAP_LAYER_NAME: "Reservas Peligrando",

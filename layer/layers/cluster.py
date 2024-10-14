@@ -1,4 +1,3 @@
-import geopandas as gpd
 from ..layer import Layer
 
 
@@ -46,7 +45,6 @@ class ClusterLayer(Layer):
         return f_gdf.to_json()
 
     def generate_style(self):
-
         return {
             "renderer": {
                 "type": "simple",

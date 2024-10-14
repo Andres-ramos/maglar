@@ -1,15 +1,14 @@
-from typing import List, Any
 import json
-from arcgis.gis import GIS, Item
 from pathlib import Path
-from arcgis.features import FeatureLayer, FeatureSet
+from typing import Any
+from typing import List
 
-from arcgis import geometry
-from copy import deepcopy
-import geopandas as gpd
 from arcgis.features import FeatureLayerCollection
+from arcgis.gis import GIS
+from arcgis.gis import Item
 
 from constants import LOCAL_STORAGE_FOLDER
+
 
 # TODO: Document file
 # TODO: Programatically create description for layer
@@ -24,8 +23,7 @@ class Layer:
 
     def update_or_create(self, geojson) -> str:
         # If no layer with title name have been created, create layer and update map
-        print("update or creaate")
-        if self.layer_item == None:
+        if self.layer_item is None:
             # If geojson has no features don't upload layer
             if len(json.loads(geojson)["features"]) > 0:
                 layer_item = self._create_layer(
@@ -38,15 +36,15 @@ class Layer:
                 self.layer_item = layer_item
                 return "create"
 
-        # If layer and webmaps have already been created, update layer map updates automatically
-        else:
-            if len(json.loads(geojson)["features"]) > 0:
-                # Overwrites current geojson file
-                fe_collection = FeatureLayerCollection.fromitem(self.layer_item)
-                with open(self.file_path, "w") as f:
-                    f.write(geojson)
-                fe_collection.manager.overwrite(self.file_path)
-                return "update"
+        # If layer and webmaps have already been created,
+        # update layer map updates automatically
+        if len(json.loads(geojson)["features"]) > 0:
+            # Overwrites current geojson file
+            fe_collection = FeatureLayerCollection.fromitem(self.layer_item)
+            with open(self.file_path, "w") as f:
+                f.write(geojson)
+            fe_collection.manager.overwrite(self.file_path)
+            return "update"
 
         return
 
@@ -78,7 +76,7 @@ class Layer:
         try:
             with open(str(local_layer_file_path), "w") as f:
                 f.write(geojson)
-        except:
+        except Exception:
             raise Exception("Failed to write layer file")
 
     def _upload_layer(
@@ -103,7 +101,7 @@ class Layer:
                 folder=storage_folder,
             )
             return item.publish()
-        except Exception as e:
+        except Exception:
             raise Exception("Arcgis layer upload exception")
 
     def _create_style(self, color):
@@ -133,15 +131,14 @@ class Layer:
             }
         }
 
-    def _generate_file_path(self):
+    def _generate_file_path(self) -> str:
         return f"./{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
 
-    def _get_layer_item(self, layer_title):
+    def _get_layer_item(self, layer_title: str):
         p_layers = self.gis.content.search(query=f"title:{layer_title}")
         return self._find_layer(possible_layers_list=p_layers)
 
     def _find_layer(self, possible_layers_list: List[Any]):
-
         for p_layer_item in possible_layers_list:
             if (
                 p_layer_item.title == self.layer_title

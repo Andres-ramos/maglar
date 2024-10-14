@@ -1,5 +1,5 @@
-from shapely.geometry import Polygon, shape
 import geopandas as gpd
+from shapely.geometry import Polygon
 
 # TODO: Document file
 PR_AOI = {

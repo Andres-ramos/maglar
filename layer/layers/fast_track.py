@@ -1,4 +1,3 @@
-import geopandas as gpd
 from ..layer import Layer
 
 

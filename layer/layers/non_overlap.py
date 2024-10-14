@@ -1,5 +1,7 @@
 import geopandas as gpd
+
 from ..layer import Layer
+
 
 # TODO: Clean up
 class NonOverlapLayer(Layer):
@@ -19,13 +21,6 @@ class NonOverlapLayer(Layer):
         non_intersecting_gdf = reserve_gdf[
             ~reserve_gdf.index.isin(intersecting_gdf.index)
         ]
-        # non_intersecting_gdf = non_intersecting_gdf.drop(columns=[ 'loc_desig','terr_mar', 'gis_source', 'notes'])
-        # non_intersecting_gdf = non_intersecting_gdf.rename(columns={
-        #     "names": "Nombre",
-        #     "mgmt": "Manejador",
-        #     "ownership": "Dueño",
-        #     "year_estab": "Año establecida"
-        # })
         return non_intersecting_gdf.to_json()
 
     def generate_style(self):

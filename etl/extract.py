@@ -1,15 +1,12 @@
-from arcgis.gis import GIS, ContentManager
-from arcgis.apps.survey123 import SurveyManager
-import geopandas as gpd
 import tempfile
 
-# TODO: Document file
+import geopandas as gpd
+from arcgis.apps.survey123 import SurveyManager
+from arcgis.gis import ContentManager
 
 
 def download_survey_data(
-    survey_id: str,
-    content_manager: ContentManager,
-    survey_manager: SurveyManager,
+    survey_id: str, survey_manager: SurveyManager, content_manager: ContentManager
 ) -> str:
     """
     Receives survey manager, content manager and survey_id
@@ -23,9 +20,11 @@ def download_survey_data(
     return path
 
 
-def extract(survey_id, survey_manager, content_manager):
+def extract(
+    survey_id: str, survey_manager: SurveyManager, content_manager: ContentManager
+) -> gpd.GeoDataFrame:
     try:
-        path = download_survey_data(survey_id, content_manager, survey_manager)
+        path = download_survey_data(survey_id, survey_manager, content_manager)
         return gpd.read_file(path)
     except Exception:
         raise Exception("Failed to download survey")

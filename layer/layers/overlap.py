@@ -1,12 +1,17 @@
+from typing import Any
+from typing import Dict
+
 import geopandas as gpd
+
 from ..layer import Layer
+
 
 # TODO: Clean up
 class OverlapLayer(Layer):
     def __init__(self, gis, layer_title, arcgis_storage_folder, color):
         super().__init__(gis, layer_title, arcgis_storage_folder, color)
 
-    def generate_layer(self, gdf):
+    def generate_layer(self, gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         RESERVAS_TERRESTRES_FOLDER = "./static/reservas"
         # TODO: Figure out where to put buffer size
         buff_size = 15
@@ -17,14 +22,6 @@ class OverlapLayer(Layer):
         intersecting_gdf = gpd.sjoin(
             reserve_gdf, circle_gdf, how="inner", op="intersects"
         )
-        # intersecting_gdf = intersecting_gdf.drop(columns=[ 'loc_desig','terr_mar', 'gis_source', 'notes',
-        # 'index_right'])
-        # intersecting_gdf = intersecting_gdf.rename(columns={
-        #     "names": "Nombre",
-        #     "mgmt": "Manejador",
-        #     "ownership": "Dueño",
-        #     "year_estab": "Año establecida"
-        # })
         return intersecting_gdf.to_json()
 
     def generate_style(self):

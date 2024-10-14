@@ -1,13 +1,15 @@
-from arcgis.gis import GIS, Item
-from arcgis.mapping import WebMap
-from arcgis.features import FeatureLayer, FeatureSet
-
-from typing import List, Dict, Any
-import json
-
 from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import List
+
+from arcgis.features import FeatureLayer
+from arcgis.gis import GIS
+from arcgis.gis import Item
+from arcgis.mapping import WebMap
 
 # Layer stuff
+
 
 # TODO: Figure out what is being used and what isn't
 # Create stuff
@@ -19,7 +21,7 @@ def write_layer(local_layer_file_path: str, geojson: str) -> None:
     try:
         with open(str(local_layer_file_path), "w") as f:
             f.write(geojson)
-    except:
+    except Exception:
         raise Exception("Failed to write layer file")
 
 
@@ -90,7 +92,8 @@ def update_layer(layer_item, geojson: str) -> None:
     #     raise Exception("Arcgis update error")
 
 
-### Webmap stuff
+# Webmap stuff
+
 
 # Create webmap
 def create_webmap_properties(webmap_title_name: str) -> Dict[str, Any]:
@@ -160,7 +163,7 @@ def create_map(webmap_title_name: str, storage_folder: str) -> None:
                 "title": "Base gris clara",
                 "visibility": True,
                 "layerType": "VectorTileLayer",
-                "styleUrl": "https://cdn.arcgis.com/sharing/rest/content/items/ae7c8edcad024c4faa73368f3c5e358d/resources/styles/root.json",
+                "styleUrl": "https://cdn.arcgis.com/sharing/rest/content/items/ae7c8edcad024c4faa73368f3c5e358d/resources/styles/root.json",  # noqa
             },
             {
                 "id": "VectorTile_7117",
@@ -168,7 +171,7 @@ def create_map(webmap_title_name: str, storage_folder: str) -> None:
                 "title": "Referencia gris clara",
                 "visibility": True,
                 "layerType": "VectorTileLayer",
-                "styleUrl": "https://cdn.arcgis.com/sharing/rest/content/items/a55e1825605f49599a09b73e59f5526a/resources/styles/root.json",
+                "styleUrl": "https://cdn.arcgis.com/sharing/rest/content/items/a55e1825605f49599a09b73e59f5526a/resources/styles/root.json",  # noqa
                 "isReference": True,
             },
         ]

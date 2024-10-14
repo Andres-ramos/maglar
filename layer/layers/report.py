@@ -1,12 +1,17 @@
+from typing import Any
+from typing import Dict
+
 import geopandas as gpd
+
 from ..layer import Layer
+
 
 # TODO: Cleanup
 class ReportLayer(Layer):
     def __init__(self, gis, layer_title, arcgis_storage_folder, color):
         super().__init__(gis, layer_title, arcgis_storage_folder, color)
 
-    def generate_layer(self, gdf):
+    def generate_layer(self, gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         gdf = gdf.drop(
             columns=[
                 "CreationDa",
@@ -40,19 +45,9 @@ class ReportLayer(Layer):
                 "_se_pudo_o": "¿Qué otras observaciones viste?",
             }
         )
-        # column_map = {
-        #     "": "¿Hay otras observaciones aledañas al lugar?",
-        #     "": "¿Qué otras observaciones viste?",
-        #     "": "¿Hay alguna otra observación en el mismo lugar?",
-        #     "": "¿Se puede observar más de una situación de la observada anteriormente?",
-        #     "": "Añade comentarios, características o mayor descripción."
-        #     "": "Comentarios generales"
-        # }
-        # gdf['test_col'] = gdf['_qu_ves_ti'].apply(lambda row: row[0:5])
         return gdf.to_json()
 
-    def generate_style(self):
-
+    def generate_style(self) -> Dict[str, Any]:
         return {
             "renderer": {
                 "type": "simple",
