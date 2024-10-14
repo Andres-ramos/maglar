@@ -1,6 +1,6 @@
-LOCAL_STORAGE_FOLDER="geojson_data"
-ARCGIS_STORAGE_FOLDER="Mapa de Costas-2024"
-WEBMAP_TITLE="Mapa de Costas 2024"
+LOCAL_STORAGE_FOLDER = "geojson_data"
+ARCGIS_STORAGE_FOLDER = "Mapa de Costas-2024"
+WEBMAP_TITLE = "Mapa de Costas 2024"
 
 REPORT_LAYER_NAME = "report"
 OVERLAP_LAYER_NAME = "overlap"
@@ -8,4 +8,4 @@ NONOVERLAP_LAYER_NAME = "non_overlap"
 CLUSTER_LAYER_NAME = "cluster"
 FAST_TRACK_LAYER_NAME = "fast_track"
 
-CRS=6566
+CRS = 6566

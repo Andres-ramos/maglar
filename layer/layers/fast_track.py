@@ -1,23 +1,46 @@
 import geopandas as gpd
 from ..layer import Layer
 
+
 class FastTrackLayer(Layer):
     def __init__(self, gis, layer_title, arcgis_storage_folder, color):
         super().__init__(gis, layer_title, arcgis_storage_folder, color)
 
     def generate_layer(self, gdf):
         f_gdf = gdf[gdf["_hay_algun"] == "Sí"]
-        f_gdf = f_gdf.drop(columns=['CreationDa', 'Creator', 'EditDate', 'Editor',
-                    'tel_fono', 'nombre_y_a', 'correo_ele', 'categoria', 'si_es_cons',
-                    'pregunta_s', '_se_puede_', 'si_es_una_', 'si_es_una1', 'si_es_un_1', 
-                    'si_es_un_2', '_tuvo_prob', 'si_tienes_', 'a_ade_come', 'comentario', 
-                    'field_21_o', '_hay_algun'])
-        f_gdf = f_gdf.rename(columns={
-            "_qu_ves_ti": "¿Qué ves? Tipo de observación", 
-            "pueblo_en_": "Pueblo",
-            "_hay_otras": "¿Hay otras observaciones aledañas al lugar?",
-            "_se_pudo_o": "¿Qué otras observaciones viste?"
-            })
+        f_gdf = f_gdf.drop(
+            columns=[
+                "CreationDa",
+                "Creator",
+                "EditDate",
+                "Editor",
+                "tel_fono",
+                "nombre_y_a",
+                "correo_ele",
+                "categoria",
+                "si_es_cons",
+                "pregunta_s",
+                "_se_puede_",
+                "si_es_una_",
+                "si_es_una1",
+                "si_es_un_1",
+                "si_es_un_2",
+                "_tuvo_prob",
+                "si_tienes_",
+                "a_ade_come",
+                "comentario",
+                "field_21_o",
+                "_hay_algun",
+            ]
+        )
+        f_gdf = f_gdf.rename(
+            columns={
+                "_qu_ves_ti": "¿Qué ves? Tipo de observación",
+                "pueblo_en_": "Pueblo",
+                "_hay_otras": "¿Hay otras observaciones aledañas al lugar?",
+                "_se_pudo_o": "¿Qué otras observaciones viste?",
+            }
+        )
 
         return f_gdf.to_json()
 
@@ -313,7 +336,9 @@ class FastTrackLayer(Layer):
                                     "type": "CIMClippingPath",
                                     "clippingType": "Intersect",
                                     "path": {
-                                        "rings": [[[0, 0], [32, 0], [32, 32], [0, 32], [0, 0]]]
+                                        "rings": [
+                                            [[0, 0], [32, 0], [32, 32], [0, 32], [0, 0]]
+                                        ]
                                     },
                                 },
                                 "rotation": 360,
@@ -600,7 +625,9 @@ class FastTrackLayer(Layer):
                                     "type": "CIMClippingPath",
                                     "clippingType": "Intersect",
                                     "path": {
-                                        "rings": [[[0, 0], [32, 0], [32, 32], [0, 32], [0, 0]]]
+                                        "rings": [
+                                            [[0, 0], [32, 0], [32, 32], [0, 32], [0, 0]]
+                                        ]
                                     },
                                 },
                                 "rotation": 360,

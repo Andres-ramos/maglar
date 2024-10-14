@@ -1,4 +1,4 @@
-import requests 
+import requests
 
 
 def query_pitirre(row):
@@ -7,16 +7,11 @@ def query_pitirre(row):
 
     x, y = row.x, row.y
     # x,y = -67.16076297678497, 18.450717761715765
-    params = {
-        "point": f"{x},{y}",
-        "dist": 15
-    }
+    params = {"point": f"{x},{y}", "dist": 15}
 
-    #TODO: Get authorization from env file
-    headers = {
-    'Authorization': 'Basic YWRtaW46MTIzNA=='
-    }
+    # TODO: Get authorization from env file
+    headers = {"Authorization": "Basic YWRtaW46MTIzNA=="}
 
     response = requests.get(url, params=params, headers=headers)
-    
+
     return response.json()["results"]
