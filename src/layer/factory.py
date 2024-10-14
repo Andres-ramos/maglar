@@ -23,7 +23,7 @@ class LayerFactory:
 
     def generate_layer(self, layer_name):
         try:
-            layer_title = self._generate_title(REPORT_LAYER_NAME)
+            layer_title = self._generate_title(layer_name)
             return self.layers[layer_name](self.gis, layer_title, "Mapa de Costas-2024")
         except Exception:
             raise Exception(f"{layer_name} not yet implemented!")

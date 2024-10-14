@@ -1,26 +1,31 @@
 import json
 from pathlib import Path
 from typing import Any
+from typing import Dict
 from typing import List
+from typing import Union
 
 from arcgis.features import FeatureLayerCollection
 from arcgis.gis import GIS
 from arcgis.gis import Item
 
 from ..constants import LOCAL_STORAGE_FOLDER
+from ..logger import logger
 
 
-# TODO: Document file
 # TODO: Programatically create description for layer
 class Layer:
-    def __init__(self, gis, layer_title, arcgis_storage_folder):
+    def __init__(self, gis: GIS, layer_title: str, arcgis_storage_folder: str):
         self.gis = gis
         self.layer_title = layer_title
         self.file_path = self._generate_file_path()
         self.layer_item = self._get_layer_item(layer_title)
         self.arcgis_storage_folder = arcgis_storage_folder
 
-    def update_or_create(self, geojson) -> str:
+    def update_or_create(self, geojson: Dict[str, Any]) -> str:
+        """
+        Updates or creates layer with data from geojson
+        """
         # If no layer with title name have been created, create layer and update map
         if self.layer_item is None:
             # If geojson has no features don't upload layer
@@ -64,6 +69,7 @@ class Layer:
                 gis, layer_title_name, local_layer_file_path, storage_folder
             )
         except Exception:
+            logger.error(f"Failed to upload layer: {layer_title_name}")
             raise ("Failed to upload layer")
 
     # Create stuff
@@ -76,6 +82,7 @@ class Layer:
             with open(str(local_layer_file_path), "w") as f:
                 f.write(geojson)
         except Exception:
+            logger.error(f"Failed to write layer to path {local_layer_file_path}")
             raise Exception("Failed to write layer file")
 
     def _upload_layer(
@@ -104,13 +111,19 @@ class Layer:
             raise Exception("Arcgis layer upload exception")
 
     def _generate_file_path(self) -> str:
+        """
+        Generates path to local geojson file
+        """
         return f"./static/{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
 
-    def _get_layer_item(self, layer_title: str):
+    def _get_layer_item(self, layer_title: str) -> Union(Item, None):
+        """
+        Looks for layer in arcgis cloud
+        """
         p_layers = self.gis.content.search(query=f"title:{layer_title}")
         return self._find_layer(possible_layers_list=p_layers)
 
-    def _find_layer(self, possible_layers_list: List[Any]):
+    def _find_layer(self, possible_layers_list: List[Any]) -> Union(Item, None):
         for p_layer_item in possible_layers_list:
             if (
                 p_layer_item.title == self.layer_title

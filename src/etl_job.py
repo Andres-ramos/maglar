@@ -46,12 +46,12 @@ def etl_job() -> None:
     filtered_report_gdf = filtered_report_gdf.drop(columns=["index_right"])
     new_reports_gdf = filtered_report_gdf
 
-    # #TODO: Query againstsurvey_data survey_datapitirre
-    # # geojs_dict = {}
-    # # for i in range(len(filtered_gdf.index)):
-    # #     global_id = filtered_gdf.iloc[i]["globalid"]
-    # #     r = filtered_gdf["geometry"].iloc[i]
-    # #     geojs_dict[global_id]= query_pitirre(r)
+    # TODO: Query againstsurvey_data survey_datapitirre
+    # geojs_dict = {}
+    # for i in range(len(filtered_gdf.index)):
+    #     global_id = filtered_gdf.iloc[i]["globalid"]
+    #     r = filtered_gdf["geometry"].iloc[i]
+    #     geojs_dict[global_id]= query_pitirre(r)
 
     # Generate layers from reports
     factory = LayerFactory(gis)
@@ -68,6 +68,7 @@ def etl_job() -> None:
     # Finds the correct webmap item and creates webmap object
     wm = find_webmap(p_webmaps, WEBMAP_TITLE)
     if wm is None:
+        logger.info("Creating webmap")
         wm = create_map(WEBMAP_TITLE, ARCGIS_STORAGE_FOLDER)
 
     # Creates or updates layers
@@ -84,6 +85,3 @@ def etl_job() -> None:
             wm.update(item_properties=create_webmap_properties(WEBMAP_TITLE))
 
     logger.info(f"Time to run script {time.time()-start} segs")
-
-
-# etl_job()
