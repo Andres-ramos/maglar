@@ -5,7 +5,7 @@ class ClusterLayer(Layer):
     def __init__(self, gis, layer_title, arcgis_storage_folder):
         super().__init__(gis, layer_title, arcgis_storage_folder)
 
-    def generate_layer(self, gdf):
+    def generate_layer_geojson(self, gdf):
         # Extract rows that have multiple construccion column
         f_gdf = gdf[gdf["_hay_otras"] == "Si"]
         f_gdf = f_gdf.drop(

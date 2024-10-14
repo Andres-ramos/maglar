@@ -11,7 +11,7 @@ class ReportLayer(Layer):
     def __init__(self, gis, layer_title, arcgis_storage_folder):
         super().__init__(gis, layer_title, arcgis_storage_folder)
 
-    def generate_layer(self, gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
+    def generate_layer_geojson(self, gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         gdf = gdf.drop(
             columns=[
                 "CreationDa",

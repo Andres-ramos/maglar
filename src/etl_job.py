@@ -18,29 +18,27 @@ from .etl.map import create_map
 from .etl.map import create_webmap_properties
 from .etl.transform import filter_data
 from .layer import LayerFactory
+from .logger import logger
 from .utils import find_webmap
 
 load_dotenv()
 
-# TODO: Add logger
-
 
 def etl_job() -> None:
     start = time.time()
-    # storage_folder = os.getenv("ARCGIS_STORAGE_FOLDER")
     username = os.getenv("ARCGIS_USERNAME")
     password = os.getenv("ARCGIS_PASSWORD")
 
-    print("logging into arcgis")
+    logger.info("Logging into arcgis")
     gis = GIS(username=username, password=password)
 
-    print("downloading survey data")
+    logger.info("Downloading survey data")
     survey_id = os.getenv("SURVEY_TITLE")
     sm = SurveyManager(gis)
     cm = ContentManager(gis)
     report_gdf = extract(survey_id, sm, cm)
 
-    print("preprocessing data")
+    logger.info("preprocessing data")
     report_gdf = report_gdf.to_crs(6566)
     # Filters data spatially
     # TODO: Consider removing columns at this point
@@ -57,8 +55,6 @@ def etl_job() -> None:
 
     # Generate layers from reports
     factory = LayerFactory(gis)
-
-    # TODO: ADD fast tract layer and cluster layer
     layer_list = [
         factory.generate_layer(OVERLAP_LAYER_NAME),
         factory.generate_layer(NONOVERLAP_LAYER_NAME),
@@ -77,8 +73,9 @@ def etl_job() -> None:
     # Creates or updates layers
     for layer in layer_list:
         # Creates or updates layer
-        layer_geojson = layer.generate_layer(new_reports_gdf)
-        # print(layer_geojson)
+        logger.info(f"Generating layer : {layer.layer_title}")
+        layer_geojson = layer.generate_layer_geojson(new_reports_gdf)
+        logger.info(f"Uploading layer : {layer.layer_title}")
         output = layer.update_or_create(layer_geojson)
         # If layer is created, add to webmap
         if output == "create":
@@ -86,7 +83,7 @@ def etl_job() -> None:
             wm.add_layer(layer.layer_item, style)
             wm.update(item_properties=create_webmap_properties(WEBMAP_TITLE))
 
-    print(f"{time.time()-start} segs")
+    logger.info(f"Time to run script {time.time()-start} segs")
 
 
-etl_job()
+# etl_job()

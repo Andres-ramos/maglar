@@ -8,7 +8,7 @@ class NonOverlapLayer(Layer):
     def __init__(self, gis, layer_title, arcgis_storage_folder):
         super().__init__(gis, layer_title, arcgis_storage_folder)
 
-    def generate_layer(self, gdf):
+    def generate_layer_geojson(self, gdf):
         RESERVAS_TERRESTRES_FOLDER = "./static/reservas"
         buff_size = 15
         d = gdf["geometry"].to_crs(32620).apply(lambda point: point.buffer(buff_size))
