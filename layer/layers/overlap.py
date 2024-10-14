@@ -25,3 +25,33 @@ class OverlapLayer(Layer):
         #     "year_estab": "Año establecida"
         # })
         return intersecting_gdf.to_json()
+
+    def generate_style(self):
+        return {
+            "renderer": {
+                "type": "simple",
+                "symbol": {
+                "type": "esriSFS",
+                "color": [
+                    179,
+                    0,
+                    3,
+                    153
+                ],
+                "outline": {
+                    "type": "esriSLS",
+                    "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                    ],
+                    "width": 1.5,
+                    "style": "esriSLSSolid"
+                },
+                "style": "esriSFSSolid"
+                }
+            }
+        }
+    
+

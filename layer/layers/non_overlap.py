@@ -23,3 +23,34 @@ class NonOverlapLayer(Layer):
         #     "year_estab": "Año establecida"
         # })
         return non_intersecting_gdf.to_json()
+
+
+    def generate_style(self):
+        return {
+            "renderer": {
+            "type": "simple",
+            "symbol": {
+            "type": "esriSFS",
+            "color": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "outline": {
+                "type": "esriSLS",
+                "color": [
+                74,
+                124,
+                89,
+                191
+                ],
+                "width": 0.75,
+                "style": "esriSLSSolid"
+            },
+            "style": "esriSFSSolid"
+            }
+        }
+    }
+
+        

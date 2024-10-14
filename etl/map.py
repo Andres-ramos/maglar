@@ -165,7 +165,27 @@ def create_map(
             webmap_item_properties, 
             folder=storage_folder
         )
-        return WebMap(new_wm_item)
+        wm = WebMap(new_wm_item)
+        wm.basemap.baseMapLayers = [
+            {
+                "id": "VectorTile_1970",
+                "opacity": 1,
+                "title": "Base gris clara",
+                "visibility": True,
+                "layerType": "VectorTileLayer",
+                "styleUrl": "https://cdn.arcgis.com/sharing/rest/content/items/ae7c8edcad024c4faa73368f3c5e358d/resources/styles/root.json"
+            },
+            {
+                "id": "VectorTile_7117",
+                "opacity": 1,
+                "title": "Referencia gris clara",
+                "visibility": True,
+                "layerType": "VectorTileLayer",
+                "styleUrl": "https://cdn.arcgis.com/sharing/rest/content/items/a55e1825605f49599a09b73e59f5526a/resources/styles/root.json",
+                "isReference": True
+            }
+        ]
+        return wm
     except Exception:
         raise Exception("Arcgis web map creation error")
 

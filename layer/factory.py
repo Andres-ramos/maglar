@@ -2,13 +2,17 @@ import geopandas as gpd
 from .layers import ReportLayer
 from .layers import OverlapLayer
 from .layers import NonOverlapLayer
+from .layers import ClusterLayer
+from .layers import FastTrackLayer
 
 from constants import (
     ARCGIS_STORAGE_FOLDER,
     WEBMAP_TITLE,
     REPORT_LAYER_NAME,
     OVERLAP_LAYER_NAME,
-    NONOVERLAP_LAYER_NAME
+    NONOVERLAP_LAYER_NAME,
+    CLUSTER_LAYER_NAME,
+    FAST_TRACK_LAYER_NAME
 )
 
 class LayerFactory:
@@ -48,6 +52,23 @@ class LayerFactory:
                 "green"
             )
 
+        elif layer_name == CLUSTER_LAYER_NAME:
+            layer_title = self._generate_title(CLUSTER_LAYER_NAME)
+            return ClusterLayer(
+                self.gis, 
+                layer_title,
+                "Mapa de Costas-2024",
+                "green"
+            )
+        
+        elif layer_name == FAST_TRACK_LAYER_NAME:
+            layer_title = self._generate_title(FAST_TRACK_LAYER_NAME)
+            return FastTrackLayer(
+                self.gis, 
+                layer_title,
+                "Mapa de Costas-2024",
+                "green"
+            )
         else :
             raise Exception(f"{layer_name} not yet implemented!")
 
@@ -58,6 +79,8 @@ class LayerFactory:
             REPORT_LAYER_NAME: "Observaciones",
             OVERLAP_LAYER_NAME: "Reservas Peligrando",
             NONOVERLAP_LAYER_NAME: "Reservas",
+            CLUSTER_LAYER_NAME: "Hot spots",
+            FAST_TRACK_LAYER_NAME: 'Fast Track'
             
         }
         return TITLE_MAP[layer_name]

@@ -30,3 +30,36 @@ class ReportLayer(Layer):
         # gdf['test_col'] = gdf['_qu_ves_ti'].apply(lambda row: row[0:5])
 
         return gdf.to_json()
+
+    def generate_style(self):
+        
+        return {
+            "renderer": {
+                "type": "simple",
+                "symbol": {
+                "type": "esriSMS",
+                "color": [
+                    247,
+                    92,
+                    3,
+                    217
+                ],
+                "angle": 0,
+                "xoffset": 0,
+                "yoffset": 0,
+                "size": 7.5,
+                "style": "esriSMSCircle",
+                "outline": {
+                    "type": "esriSLS",
+                    "color": [
+                    255,
+                    255,
+                    255,
+                    128
+                    ],
+                    "width": 0.998,
+                    "style": "esriSLSSolid"
+                    }
+                }
+            }
+        }

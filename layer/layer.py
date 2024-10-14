@@ -24,6 +24,7 @@ class Layer:
     
     def update_or_create(self, geojson) -> str:
         # If no layer with title name have been created, create layer and update map
+        print("update or creaate")
         if self.layer_item == None:
             #If geojson has no features don't upload layer
             if len(json.loads(geojson)["features"]) > 0:
@@ -118,8 +119,8 @@ class Layer:
         outline_color = [0, 0, 0, 255]
         outline_width = 0.75
         color_map = {
-            "red": [255, 0, 0, 100],
-            "green": [0,255,0,100],
+            "red": [179, 0, 3, 100],
+            "green": [74,124, 89,100],
             "blue": [0,0,255,100]
         }
         rgba_color = color_map[color]

@@ -28,7 +28,9 @@ from constants import (
     WEBMAP_TITLE,
     REPORT_LAYER_NAME,
     OVERLAP_LAYER_NAME,
-    NONOVERLAP_LAYER_NAME
+    NONOVERLAP_LAYER_NAME,
+    CLUSTER_LAYER_NAME,
+    # FAST_TRACK_LAYER_NAME
 )
 
 load_dotenv()
@@ -71,9 +73,11 @@ def main() -> None:
 
     #TODO: ADD fast tract layer and cluster layer
     layer_list = [
-        factory.generate_layer(REPORT_LAYER_NAME),
         factory.generate_layer(OVERLAP_LAYER_NAME),
-        factory.generate_layer(NONOVERLAP_LAYER_NAME)
+        factory.generate_layer(NONOVERLAP_LAYER_NAME),
+        factory.generate_layer(REPORT_LAYER_NAME),
+        factory.generate_layer(CLUSTER_LAYER_NAME),
+        # factory.generate_layer(FAST_TRACK_LAYER_NAME)
     ]
 
     p_webmaps = gis.content.search(query=f"title:{WEBMAP_TITLE}", item_type="Web Map")
@@ -93,7 +97,8 @@ def main() -> None:
         output = layer.update_or_create(layer_geojson)
         #If layer is created, add to webmap
         if output == "create":
-            wm.add_layer(layer.layer_item, layer.layer_style)
+            style = layer.generate_style()
+            wm.add_layer(layer.layer_item, style)
             wm.update(
                 item_properties=create_webmap_properties(WEBMAP_TITLE)
             )
