@@ -87,3 +87,6 @@ def etl_job() -> None:
             wm.update(item_properties=create_webmap_properties(WEBMAP_TITLE))
 
     print(f"{time.time()-start} segs")
+
+
+etl_job()

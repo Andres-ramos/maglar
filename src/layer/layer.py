@@ -13,13 +13,12 @@ from ..constants import LOCAL_STORAGE_FOLDER
 # TODO: Document file
 # TODO: Programatically create description for layer
 class Layer:
-    def __init__(self, gis, layer_title, arcgis_storage_folder, color):
+    def __init__(self, gis, layer_title, arcgis_storage_folder):
         self.gis = gis
         self.layer_title = layer_title
         self.file_path = self._generate_file_path()
         self.layer_item = self._get_layer_item(layer_title)
         self.arcgis_storage_folder = arcgis_storage_folder
-        self.layer_style = self._create_style(color) if color else None
 
     def update_or_create(self, geojson) -> str:
         # If no layer with title name have been created, create layer and update map
@@ -103,33 +102,6 @@ class Layer:
             return item.publish()
         except Exception:
             raise Exception("Arcgis layer upload exception")
-
-    def _create_style(self, color):
-        outline_color = [0, 0, 0, 255]
-        outline_width = 0.75
-        color_map = {
-            "red": [179, 0, 3, 100],
-            "green": [74, 124, 89, 100],
-            "blue": [0, 0, 255, 100],
-        }
-        rgba_color = color_map[color]
-
-        return {
-            "renderer": {
-                "type": "simple",
-                "symbol": {
-                    "type": "esriSFS",
-                    "style": "esriSFSSolid",
-                    "color": rgba_color,
-                    "outline": {
-                        "type": "esriSLS",
-                        "style": "esriSLSSolid",
-                        "color": outline_color,
-                        "width": outline_width,
-                    },
-                },
-            }
-        }
 
     def _generate_file_path(self) -> str:
         return f"./static/{LOCAL_STORAGE_FOLDER}/{self.layer_title}.geojson"
