@@ -2,10 +2,12 @@ import time
 
 from schedule import every
 from schedule import repeat
-from schedule import run_pending
 
 from src.etl_job import etl_job
 from src.logger import logger
+
+# from schedule import run_pending
+
 
 TIME_TO_RUN_SCRIPT = 1
 
@@ -18,5 +20,6 @@ def job() -> None:
 
 logger.info("Starting Manglar")
 while True:
-    run_pending()
+    # run_pending()
+    etl_job()
     time.sleep(1)

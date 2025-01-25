@@ -38,5 +38,6 @@ class LayerFactory:
             NONOVERLAP_LAYER_NAME: "Reservas",
             CLUSTER_LAYER_NAME: "Hot spots",
             FAST_TRACK_LAYER_NAME: "Fast Track",
+            # PARCEL_LAYER_NAME: "Parcelas",
         }
         return TITLE_MAP[layer_name]
