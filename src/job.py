@@ -1,3 +1,4 @@
+import json
 import os
 import time
 
@@ -5,12 +6,15 @@ from arcgis.apps.survey123 import SurveyManager
 from arcgis.gis import GIS
 from arcgis.gis import ContentManager
 from dotenv import load_dotenv
+from requests.auth import HTTPBasicAuth
 
 from .constants import ARCGIS_STORAGE_FOLDER
 from .constants import CLUSTER_LAYER_NAME
 from .constants import FAST_TRACK_LAYER_NAME
 from .constants import NONOVERLAP_LAYER_NAME
 from .constants import OVERLAP_LAYER_NAME
+from .constants import PARCEL_LAYER_NAME
+from .constants import PUT_LAYER_NAME
 from .constants import REPORT_LAYER_NAME
 from .constants import WEBMAP_TITLE
 from .etl.extract import extract
@@ -19,18 +23,19 @@ from .etl.map import create_webmap_properties
 from .etl.transform import filter_data
 from .layer import LayerFactory
 from .logger import logger
+from .pytirre import fetch_with_radius
 from .utils import find_webmap
 
 load_dotenv()
 
 
-def etl_job() -> None:
+def job() -> None:
     start = time.time()
-    username = os.getenv("ARCGIS_USERNAME")
-    password = os.getenv("ARCGIS_PASSWORD")
+    arcgis_username = os.getenv("ARCGIS_USERNAME")
+    arcgis_password = os.getenv("ARCGIS_PASSWORD")
 
     logger.info("Logging into arcgis")
-    gis = GIS(username=username, password=password)
+    gis = GIS(username=arcgis_username, password=arcgis_password)
 
     logger.info("Downloading survey data")
     survey_id = os.getenv("SURVEY_TITLE")
@@ -38,20 +43,42 @@ def etl_job() -> None:
     cm = ContentManager(gis)
     report_gdf = extract(survey_id, sm, cm)
 
-    logger.info("preprocessing data")
-    report_gdf = report_gdf.to_crs(6566)
+    logger.info("Preprocessing data")
+    report_gdf = report_gdf.to_crs(4326)
     # Filters data spatially
     # TODO: Consider removing columns at this point
     filtered_report_gdf = filter_data(report_gdf)
     filtered_report_gdf = filtered_report_gdf.drop(columns=["index_right"])
+    # TODO: Excel de esto
     new_reports_gdf = filtered_report_gdf
 
-    # TODO: Query againstsurvey_data survey_datapitirre
-    # geojs_dict = {}
-    # for i in range(len(filtered_gdf.index)):
-    #     global_id = filtered_gdf.iloc[i]["globalid"]
-    #     r = filtered_gdf["geometry"].iloc[i]
-    #     geojs_dict[global_id]= query_pitirre(r)
+    logger.info("Querrying Pitirre")
+    pitirre_username = os.getenv("PITIRRE_USERNAME")
+    pitirre_password = os.getenv("PITIRRE_PASSWORD")
+    pitirre_base_url = os.getenv("PITIRRE_BASE_URL")
+    pitirre_parcel_url = os.getenv("PITIRRE_PARCEL_URL")
+    pitirre_put_url = os.getenv("PITIRRE_PUT_URL")
+
+    auth = HTTPBasicAuth(pitirre_username, pitirre_password)
+
+    RADIUS = 15
+    points = new_reports_gdf["geometry"]
+
+    logger.info("Fetching from Parcel API")
+    parcel_list = fetch_with_radius(
+        points, pitirre_base_url + pitirre_parcel_url, RADIUS, auth
+    )
+    parcel_geojson = {"type": "FeatureCollection", "features": parcel_list}
+    with open("./static/geojson_data/parcels.geojson", "w") as f:
+        f.write(json.dumps(parcel_geojson))
+
+    logger.info("Fetching from PUT API")
+    put_list = fetch_with_radius(
+        points, pitirre_base_url + pitirre_put_url, RADIUS, auth
+    )
+    put_geojson = {"type": "FeatureCollection", "features": put_list}
+    with open("./static/geojson_data/PUT.geojson", "w") as f:
+        f.write(json.dumps(put_geojson))
 
     # Generate layers from reports
     factory = LayerFactory(gis)
@@ -61,6 +88,8 @@ def etl_job() -> None:
         factory.generate_layer(REPORT_LAYER_NAME),
         factory.generate_layer(CLUSTER_LAYER_NAME),
         factory.generate_layer(FAST_TRACK_LAYER_NAME),
+        factory.generate_layer(PARCEL_LAYER_NAME),
+        factory.generate_layer(PUT_LAYER_NAME),
     ]
 
     p_webmaps = gis.content.search(query=f"title:{WEBMAP_TITLE}", item_type="Web Map")

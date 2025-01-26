@@ -7,5 +7,7 @@ OVERLAP_LAYER_NAME = "overlap"
 NONOVERLAP_LAYER_NAME = "non_overlap"
 CLUSTER_LAYER_NAME = "cluster"
 FAST_TRACK_LAYER_NAME = "fast_track"
+PARCEL_LAYER_NAME = "parcel"
+PUT_LAYER_NAME = "PUT"
 
 CRS = 6566

@@ -2,11 +2,15 @@ from ..constants import CLUSTER_LAYER_NAME
 from ..constants import FAST_TRACK_LAYER_NAME
 from ..constants import NONOVERLAP_LAYER_NAME
 from ..constants import OVERLAP_LAYER_NAME
+from ..constants import PARCEL_LAYER_NAME
+from ..constants import PUT_LAYER_NAME
 from ..constants import REPORT_LAYER_NAME
 from .layers import ClusterLayer
 from .layers import FastTrackLayer
 from .layers import NonOverlapLayer
 from .layers import OverlapLayer
+from .layers import ParcelLayer
+from .layers import PUTLayer
 from .layers import ReportLayer
 
 
@@ -19,6 +23,8 @@ class LayerFactory:
             NONOVERLAP_LAYER_NAME: NonOverlapLayer,
             CLUSTER_LAYER_NAME: ClusterLayer,
             FAST_TRACK_LAYER_NAME: FastTrackLayer,
+            PARCEL_LAYER_NAME: ParcelLayer,
+            PUT_LAYER_NAME: PUTLayer,
         }
 
     def generate_layer(self, layer_name):
@@ -38,5 +44,7 @@ class LayerFactory:
             NONOVERLAP_LAYER_NAME: "Reservas",
             CLUSTER_LAYER_NAME: "Hot spots",
             FAST_TRACK_LAYER_NAME: "Fast Track",
+            PARCEL_LAYER_NAME: "Parcelas",
+            PUT_LAYER_NAME: "PUT",
         }
         return TITLE_MAP[layer_name]
