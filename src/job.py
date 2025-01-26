@@ -2,7 +2,6 @@ import json
 import os
 import time
 
-import requests
 from arcgis.apps.survey123 import SurveyManager
 from arcgis.gis import GIS
 from arcgis.gis import ContentManager
@@ -24,12 +23,13 @@ from .etl.map import create_webmap_properties
 from .etl.transform import filter_data
 from .layer import LayerFactory
 from .logger import logger
+from .pytirre import fetch_with_radius
 from .utils import find_webmap
 
 load_dotenv()
 
 
-def etl_job() -> None:
+def job() -> None:
     start = time.time()
     arcgis_username = os.getenv("ARCGIS_USERNAME")
     arcgis_password = os.getenv("ARCGIS_PASSWORD")
@@ -59,36 +59,23 @@ def etl_job() -> None:
     pitirre_parcel_url = os.getenv("PITIRRE_PARCEL_URL")
     pitirre_put_url = os.getenv("PITIRRE_PUT_URL")
 
-    basic = HTTPBasicAuth(pitirre_username, pitirre_password)
+    auth = HTTPBasicAuth(pitirre_username, pitirre_password)
 
+    RADIUS = 15
     points = new_reports_gdf["geometry"]
-    logger.info("Querrying Parcel API")
-    parcel_list = []
-    for point in points:
-        point_str = f"{point.x},{point.y}"
-        distance = 15
-        params = {"dist": distance, "point": point_str}
-        pitirre_response = requests.get(
-            pitirre_base_url + pitirre_parcel_url, auth=basic, params=params
-        )
-        parcel_result = pitirre_response.json()
-        parcel_list += parcel_result["results"]["features"]
 
+    logger.info("Fetching from Parcel API")
+    parcel_list = fetch_with_radius(
+        points, pitirre_base_url + pitirre_parcel_url, RADIUS, auth
+    )
     parcel_geojson = {"type": "FeatureCollection", "features": parcel_list}
     with open("./static/geojson_data/parcels.geojson", "w") as f:
         f.write(json.dumps(parcel_geojson))
 
-    logger.info("Querrying PUT API")
-    put_list = []
-    for point in points:
-        point_str = f"{point.x},{point.y}"
-        distance = 15
-        params = {"dist": distance, "point": point_str}
-        pitirre_response = requests.get(
-            pitirre_base_url + pitirre_put_url, auth=basic, params=params
-        )
-        put_result = pitirre_response.json()
-        put_list += put_result["results"]["features"]
+    logger.info("Fetching from PUT API")
+    put_list = fetch_with_radius(
+        points, pitirre_base_url + pitirre_put_url, RADIUS, auth
+    )
     put_geojson = {"type": "FeatureCollection", "features": put_list}
     with open("./static/geojson_data/PUT.geojson", "w") as f:
         f.write(json.dumps(put_geojson))
