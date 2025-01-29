@@ -15,8 +15,9 @@ from .layers import ReportLayer
 
 
 class LayerFactory:
-    def __init__(self, gis):
+    def __init__(self, gis, db):
         self.gis = gis
+        self.db = db
         self.layers = {
             REPORT_LAYER_NAME: ReportLayer,
             OVERLAP_LAYER_NAME: OverlapLayer,
@@ -30,7 +31,9 @@ class LayerFactory:
     def generate_layer(self, layer_name):
         try:
             layer_title = self._generate_title(layer_name)
-            return self.layers[layer_name](self.gis, layer_title, "Mapa de Costas-2024")
+            return self.layers[layer_name](
+                self.gis, self.db, layer_title, "Mapa de Costas-2024"
+            )
         except Exception:
             raise Exception(f"{layer_name} not yet implemented!")
 

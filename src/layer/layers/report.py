@@ -8,8 +8,8 @@ from ..layer import Layer
 
 # TODO: Cleanup
 class ReportLayer(Layer):
-    def __init__(self, gis, layer_title, arcgis_storage_folder):
-        super().__init__(gis, layer_title, arcgis_storage_folder)
+    def __init__(self, gis, db, layer_title, arcgis_storage_folder):
+        super().__init__(gis, db, layer_title, arcgis_storage_folder)
 
     def generate_layer_geojson(self, gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         gdf = gdf.drop(

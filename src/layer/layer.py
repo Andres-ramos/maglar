@@ -15,8 +15,9 @@ from ..logger import logger
 
 # TODO: Programatically create description for layer
 class Layer:
-    def __init__(self, gis: GIS, layer_title: str, arcgis_storage_folder: str):
+    def __init__(self, gis: GIS, db, layer_title: str, arcgis_storage_folder: str):
         self.gis = gis
+        self.db = db
         self.layer_title = layer_title
         self.file_path = self._generate_file_path()
         self.layer_item = self._get_layer_item(layer_title)
