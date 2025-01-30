@@ -25,6 +25,8 @@ def extract(
 ) -> gpd.GeoDataFrame:
     try:
         path = download_survey_data(survey_id, survey_manager, content_manager)
+
         return gpd.read_file(path)
+
     except Exception:
         raise Exception("Failed to download survey")
