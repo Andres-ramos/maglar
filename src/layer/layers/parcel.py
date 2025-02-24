@@ -13,10 +13,7 @@ class ParcelLayer(Layer):
         super().__init__(gis, db, layer_title, arcgis_storage_folder)
 
     def generate_layer_geojson(self, gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
-        # TODO: Evaluate if this query will need to be rewritten
-        # For example: there might be more parcels in the db that we don;t
-        # want to show
-        # TODO: Add all the necesesary values
+        # TODO: Add all the necesesary values!!
         q = "SELECT cadastre_number, owner_name, geometry FROM Parcel"
         results = self.db.cursor().execute(q).fetchall()
 
