@@ -1,10 +1,34 @@
 import os
+import random
 import sqlite3
 
+import shapely
 from shapely.geometry import shape
 
 from ..logger import logger
+from .constants import ABANDONED_PROP_IN_WATER
+from .constants import ADDRESS
+from .constants import COMMENT
+from .constants import CONSTRUCTION_AND_SIGN
+from .constants import CREATION_DATE
+from .constants import CREATOR
 from .constants import DATABASE_SCHEMA_URL
+from .constants import EDIT_DATE
+from .constants import EDITOR
+from .constants import GENERAL_COMMENTS
+from .constants import GLOBAL_ID
+from .constants import MUNICIPALITY
+from .constants import OBJECT_ID
+from .constants import OBSERVER_EMAIL
+from .constants import OBSERVER_NAME
+from .constants import OBSERVER_PHONE_NUMBER
+from .constants import OTHER_OBSERVARVATIONS_NEARBY
+from .constants import OTHER_OBSERVATIONS_CATEGORIES
+from .constants import PRIMARY_OBSERVATION
+from .constants import PROBLEM_RECORDING_LOCATION
+from .constants import SALE_AND_CONSTRUCTION
+from .constants import SALE_AND_SIGN
+from .exceptions import DBInsertObservationException
 
 
 def get_db(db_name):
@@ -25,6 +49,7 @@ def initialize():
     db_name = "db"
     if not os.path.isfile(db_name):
         db = init_db(db_name)
+        # TODO: Insert reservas naturales y zmt layer
     # gets db connection object
     db = get_db(db_name)
 
@@ -33,59 +58,110 @@ def initialize():
 
 def insert_observations(db, filtered_records):
     for _, payload in filtered_records.iterrows():
-        arcgis_id = payload["globalid"]
-        point_in_wkt = shape(payload["geometry"]).wkt
-        creation_date = payload["CreationDa"]
-        creator = payload["Creator"]
-        edit_date = payload["EditDate"]
-        editor = payload["Editor"]
-        category = payload["_qu_ves_ti"]
-        municipality = payload["pueblo_en_"]
-        observer_name = payload["nombre_y_a"]
-        observer_email = payload["correo_ele"]
-        observer_phone_number = payload["tel_fono"]
-        problem_reporting = payload["_tuvo_prob"]
+        try:
+            insert_observation(db, payload)
+        except Exception:
+            logger.warning("Failed to insert observation")
+            pass
 
-        insert_query = """
-            INSERT INTO Observation (
-                point,
-                arcgisid,
-                creation_date,
-                creator,
-                edit_date,
-                editor,
-                category,
-                municipality,
-                observer_name,
-                observer_email,
-                observer_phone_number,
-                problem_reporting
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            ) ON CONFLICT(arcgisid) DO NOTHING;
-        """
-        data_to_insert = (
-            point_in_wkt,
-            arcgis_id,
+
+def insert_observation(db, payload):
+    global_id = payload[GLOBAL_ID]
+    object_id = payload[OBJECT_ID]
+    creation_date = payload[CREATION_DATE]
+    creator = payload[CREATOR]
+    edit_date = payload[EDIT_DATE]
+    editor = payload[EDITOR]
+    primary_observation = payload[PRIMARY_OBSERVATION]
+    construction_and_sign = payload[CONSTRUCTION_AND_SIGN]
+    sale_and_construction = payload[SALE_AND_CONSTRUCTION]
+    sale_and_sign = payload[SALE_AND_SIGN]
+    abandoned_prop_in_water = payload[ABANDONED_PROP_IN_WATER]
+    problem_recording_location = payload[PROBLEM_RECORDING_LOCATION]
+    address = payload[ADDRESS]
+    municipality = payload[MUNICIPALITY]
+    comment = payload[COMMENT]
+    observer_name = payload[OBSERVER_NAME]
+    observer_email = payload[OBSERVER_EMAIL]
+    observer_phone_number = payload[OBSERVER_PHONE_NUMBER]
+    general_comment = payload[GENERAL_COMMENTS]
+    other_observations_nearby = payload[OTHER_OBSERVARVATIONS_NEARBY]
+    other_observation_categories = payload[OTHER_OBSERVATIONS_CATEGORIES]
+
+    lat, lng = float(payload["y"]), float(payload["x"])
+    point = shapely.Point(lng, lat)
+    point_in_wkt = point.wkt
+
+    noisy_point = generate_noisy_point(point)
+    noisy_point_in_wkt = noisy_point.wkt
+
+    insert_query = """
+        INSERT INTO Observation (
+            globalid,
+            objectid,
             creation_date,
             creator,
             edit_date,
             editor,
-            category,
+            primary_observation,
+            construction_and_sign,
+            sale_and_construction,
+            sale_and_sign,
+            abandoned_prop_in_water,
+            problem_recording_location,
+            address,
             municipality,
+            comment,
             observer_name,
             observer_email,
             observer_phone_number,
-            problem_reporting,
-        )
-        logger.info("Inserting Observation record")
-        try:
-            db.cursor().execute(insert_query, data_to_insert)
-            db.commit()
-        except Exception as e:
-            logger.error(f"Error: Observation failed to insert {e}")
+            general_comment,
+            other_observations_nearby,
+            other_observation_categories,
+            point,
+            noisy_point
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?
+        ) ON CONFLICT(globalid) DO NOTHING;
+    """
+    data_to_insert = (
+        global_id,
+        object_id,
+        creation_date,
+        creator,
+        edit_date,
+        editor,
+        primary_observation,
+        construction_and_sign,
+        sale_and_construction,
+        sale_and_sign,
+        abandoned_prop_in_water,
+        problem_recording_location,
+        address,
+        municipality,
+        comment,
+        observer_name,
+        observer_email,
+        observer_phone_number,
+        general_comment,
+        other_observations_nearby,
+        other_observation_categories,
+        point_in_wkt,
+        noisy_point_in_wkt,
+    )
+    logger.info("Inserting Observation record")
+    try:
+        db.cursor().execute(insert_query, data_to_insert)
+        db.commit()
+    except Exception as e:
+        logger.error(f"Error: Observation failed to insert {e}")
+        raise DBInsertObservationException
 
-    return
+
+def generate_noisy_point(point: float, range: float = 0.0001):
+    noisy_x = point.x + random.uniform(-range, range)
+    noisy_y = point.y + random.uniform(-range, range)
+    return shapely.Point(noisy_x, noisy_y)
 
 
 def insert_parcel(db, feature):
@@ -159,42 +235,3 @@ def insert_parcel(db, feature):
 
 def insert_put_parcel():
     return
-
-
-# 'ObjectID',
-# 'GlobalID',
-# 'CreationDate',
-# 'Creator',
-# 'EditDate',
-# 'Editor',
-# 'Categoria',
-# 'Si es construccion tiene rotulos?', 'si_es_cons
-# '¿Qué ves? Tipo de observación', '_qu_ves_ti'
-# 'Otro - ¿Qué ves? Tipo de observación', 'pregunta_s'
-# '¿Se puede observar más de una situación de
-# la observada anteriormente? Favor de indicarlo.', '_se_puede_'
-# 'Si es una venta ¿hay alguna construcción en
-# ella?', si_es_una_'
-# 'Si es una venta, ¿tiene rótulos (carteles)
-# de permisos de alguna agencia gubernamental? ', si_es_una1
-# 'Si es una construcción, ¿tiene rótulos (carteles)
-# de permisos de alguna agencia gubernamental?', 'si_es_un_1
-# 'Si es una estructura abandona, ¿está dentro del
-# mar?', 'si_es_un_2'
-# '¿Tuvo problemas para entrar la localización en el mapa
-#  presentado en la pregunta anterior?', '_tuvo_prob'
-# 'Si tienes problemas con el localizador de la
-# pregunta anterior, escribe aquí tu ubicación ya sea
-# pegando desde  google maps o escribiendo el nombre
-# de la calle, el barrio, km y otra descripción.', 'si_tienes_'
-# 'Pueblo en donde se está haciendo la observación', 'pueblo_en_'
-# 'Añade comentarios, características o mayor descripción.', 'a_ade_come'
-# '¿Hay otras observaciones aledañas al lugar?
-#  Favor de escribirlas. ', _hay_otras'
-# 'Nombre y Apellidos', 'Correo electrónico', 'Teléfono',
-# 'Comentarios generales',
-# '¿Qué otras observaciones viste? Selecciona todas las
-# que apliquen.',  '_se_pudo_o'
-# 'Otro - ¿Qué otras observaciones viste? Selecciona todas
-# las que apliquen.', 'field_21_o'
-# '¿Hay alguna otra observación en el mismo lugar?',  '_hay_algun'

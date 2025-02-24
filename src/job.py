@@ -48,23 +48,23 @@ def job() -> None:
     survey_id = os.getenv("SURVEY_TITLE")
     sm = SurveyManager(gis)
     cm = ContentManager(gis)
-    report_gdf = extract(survey_id, sm, cm)
+    report_df = extract(survey_id, sm, cm)
 
     logger.info("Fetching existing records")
     fetch_query = """
-                    SELECT arcgisid FROM Observation;
+                    SELECT globalid FROM Observation;
                 """
     result = db.cursor().execute(fetch_query)
     globalIdList = result.fetchall()
     globalIdList = [entry[0] for entry in globalIdList]
     logger.info("Filtering new records")
-    report_gdf = report_gdf[~report_gdf["globalid"].isin(globalIdList)]
+    new_report_df = report_df[~report_df["GlobalID"].isin(globalIdList)]
 
     logger.info("Inserting new records into database")
-    insert_observations(db, report_gdf)
+    insert_observations(db, new_report_df)
 
     logger.info("Preprocessing data")
-    report_gdf = report_gdf.to_crs(4326)
+    report_gdf = new_report_df.to_crs(4326)
     # TODO: Consider removing columns at this point
     filtered_report_gdf = filter_data(report_gdf)
     filtered_report_gdf = filtered_report_gdf.drop(columns=["index_right"])
